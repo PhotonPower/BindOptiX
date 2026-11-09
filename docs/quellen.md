@@ -24,3 +24,5 @@ prüfen).
 | xiong2022 | L. Xiong et al., „DNA aptamers specific for Legionella pneumophila: systematic evolution of ligands by exponential enrichment in whole bacterial cells“, Biotechnol. Lett. (2022) | Z | D3: Aptamere |
 | shaukat2024 | A. Shaukat et al., „Cell-SELEX for aptamer discovery and its utilization in constructing electrochemical biosensor for rapid and highly sensitive detection of Legionella pneumophila serogroup 1“, Sci. Rep. 14 (2024), doi:10.1038/s41598-024-65075-4 | Z | D3: Aptamere, Serogruppe 1 |
 | goldman1967 | A. J. Goldman, R. G. Cox, H. Brenner, „Slow viscous motion of a sphere parallel to a plane wall – II Couette flow“, Chem. Eng. Sci. 22 (1967) 653–660 | Z | Abschätzung: Gleiten abgesunkener Zellen am Boden (Z3) |
+| bruus2008 | H. Bruus, *Theoretical Microfluidics*, Oxford University Press 2008 | Z | `bindoptix.flow`: Poiseuille-Strömung im Rechteckkanal, T32 |
+| perrin1936 | F. Perrin, „Mouvement brownien d'un ellipsoïde (II). Rotation libre et dépolarisation des fluorescences. Translation et diffusion de molécules ellipsoïdales“, J. Phys. Radium 7 (1936) 1–11 | Z | T27: Reibung des Ellipsoids, gemittelt |
