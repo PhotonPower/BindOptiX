@@ -23,6 +23,8 @@ from numpy.typing import ArrayLike, NDArray
 
 from bindoptix.cells import CellModel
 from bindoptix.chip import Channel, ChipLayout, _clip_convex, _polygon_area
+from bindoptix.continuum import Species, graded_edges
+from bindoptix.continuum3d import ChannelVolume, FloorRegion
 from bindoptix.flow import DuctFlow
 from bindoptix.frames import Mount
 from bindoptix.particles import CAPTURED, ChannelModel, RunResult, Spot, inlet_positions, run
@@ -156,3 +158,39 @@ def run_chip(
         runs.append(r)
         maps.append(cs)
     return ChipRun(per_spot, np.array(n, dtype=np.int64), runs, maps)
+
+
+def channel_volume(
+    layout: ChipLayout,
+    k: int,
+    flow_rate_um3_s: float,
+    species: Sequence[Species],
+    sites_per_um2: float,
+    k_on_um3_s: Sequence[Sequence[float]],
+    k_off_s: Sequence[Sequence[float]],
+    dx_um: float = 50.0,
+    ny: int = 12,
+    nz: int = 16,
+    first_dz_um: float = 0.5,
+) -> tuple[ChannelVolume, ChannelSpots]:
+    """3D continuum model of channel k with its spots as reactive floor regions (Z4, part 2).
+
+    ``k_on_um3_s[s][q]`` and ``k_off_s[s][q]`` per grid spot s and species q. The x grid is
+    uniform with spacing ``dx_um`` plus the x extents of the spots; y uniform; z graded from the
+    floor with first cell ``first_dz_um``.
+    """
+    ch = layout.all_channels()[k]
+    cs = channel_spots(layout, k)
+    flow = DuctFlow(ch.width_um, ch.height_um, flow_rate_um3_s)
+    xs = [np.linspace(0.0, ch.length_um, int(math.ceil(ch.length_um / dx_um)) + 1)]
+    regions = []
+    for s, spot in zip(cs.grid_index, cs.spots, strict=True):
+        xs.append(np.array([spot.polygon_um[:, 0].min(), spot.polygon_um[:, 0].max()]))
+        regions.append(
+            FloorRegion(spot.polygon_um, sites_per_um2, tuple(k_on_um3_s[s]), tuple(k_off_s[s]))
+        )
+    xe = np.unique(np.round(np.concatenate(xs), 9))
+    ye = np.linspace(-0.5 * ch.width_um, 0.5 * ch.width_um, ny + 1)
+    ze = graded_edges(ch.height_um, nz, first_dz_um)
+    vol = ChannelVolume(xe, ye, ze, flow.velocity_um_s, species, regions)
+    return vol, cs
