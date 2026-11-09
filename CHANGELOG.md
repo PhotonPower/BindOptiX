@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Z1, Teil 1: Python-Paket `bindoptix` mit CI (ruff, mypy strict, pytest), `bindoptix.units`
+  (Teilchenzahlen, KBE, k_on), `bindoptix.frames` (Pose Sensorsystem → RTT-System mit
+  Spiegelregel, polare und axiale Vektoren, Tensoren; Einbaulage mit Schwerkraftrichtung);
+  Testfälle T1, T2.
+
 - Entscheidungen D1–D5, D12, D13 (Legionellen, Gold zuerst, Vorkonzentrierung, gestufte Klassen);
   Abschätzung zu Probenvolumen und Einfangzeit; Testfälle T27, T28; Z0 abgenommen.
 
