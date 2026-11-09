@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Chipgeometrie für ein schräg stehendes Grid (`grid_angle_rad`) und frei liegende gerade Kanäle
+  (`Channel`), Überdeckung Spot/Kanal (`coverage`, `uncovered_spots`), Querpositionen der Spots;
+  Testfall T30.
+
 - Z1, Teil 2: `bindoptix.chip` mit 5 × 5 Spots im Gesichtsfeld Ø 5 mm, Kanäle ≤ 200 µm, Körper
   über Nurbforge, STEP-Export; Testfall T29; Abschätzung zum Einfang für dieses Layout; D15, D16.
 

@@ -8,7 +8,7 @@ import nurbforge as nf
 import pytest
 from scipy.integrate import quad
 
-from bindoptix.chip import ChipLayout
+from bindoptix.chip import Channel, ChipLayout
 
 
 def test_default_layout_fits_and_counts() -> None:
@@ -26,7 +26,7 @@ def test_channel_floor_in_field_against_quadrature() -> None:
     r, w2 = c.field_radius_um, 0.5 * c.channel_width_um
     ref = sum(
         quad(lambda y: 2.0 * math.sqrt(r * r - y * y), y0 - w2, y0 + w2, epsabs=0, epsrel=1e-13)[0]
-        for y0 in c.row_y_um()
+        for y0 in (ch.offset_um for ch in c.all_channels())
     )
     assert c.channel_floor_in_field_um2() == pytest.approx(ref, rel=1e-11)
 
@@ -103,3 +103,83 @@ def test_step_round_trip(tmp_path: Path) -> None:
 def test_invalid_layouts(kwargs: dict[str, float], match: str) -> None:
     with pytest.raises(ValueError, match=match):
         ChipLayout(**kwargs)  # type: ignore[arg-type]
+
+
+# --- tilted grid and free channels (maintainer 2026-11-09) -----------------------------------
+
+THETA = math.atan(1.0 / 5.0)
+
+
+def test_tilted_grid_distinct_cross_flow_positions() -> None:
+    # Independent reference: y = p (j sin θ + i cos θ) = p (j + 5 i)/√26, i, j = −2 … 2.
+    c = ChipLayout(grid_angle_rad=THETA)
+    y = np.sort(c.cross_flow_positions_um(0.0))
+    ref = np.sort(
+        [800.0 * (j + 5 * i) / math.sqrt(26.0) for i in range(-2, 3) for j in range(-2, 3)]
+    )
+    np.testing.assert_allclose(y, ref, atol=1e-9)
+    np.testing.assert_allclose(np.diff(y), 800.0 / math.sqrt(26.0), rtol=1e-12)
+
+
+def test_tilt_does_not_change_fit() -> None:
+    assert ChipLayout(grid_angle_rad=THETA).max_spot_radius_um == pytest.approx(
+        ChipLayout().max_spot_radius_um, rel=1e-15
+    )
+
+
+def test_coverage_rows_follow_tilted_grid() -> None:
+    c = ChipLayout(grid_angle_rad=THETA)
+    cov = c.coverage()
+    assert c.uncovered_spots() == []
+    for r, row in enumerate(cov):
+        assert [x.spot for x in row] == [5 * r + j for j in range(5)]
+        assert all(x.fraction == pytest.approx(1.0, abs=1e-12) for x in row)
+
+
+def _monte_carlo_fraction(c: ChipLayout, k: int, ch: Channel, n: int = 200_000) -> float:
+    """Independent reference: share of random points of spot k inside the channel strip."""
+    rng = np.random.default_rng(7)
+    uv = (rng.random((n, 2)) - 0.5) * c.spot_size_um
+    rot = np.array([[math.cos(THETA), -math.sin(THETA)], [math.sin(THETA), math.cos(THETA)]])
+    pts = c.spot_centers_um()[k, :2] + uv @ rot.T
+    d = pts @ ch.normal - ch.offset_um
+    return float(np.mean(np.abs(d) <= 0.5 * ch.width_um))
+
+
+def test_coverage_fraction_against_monte_carlo() -> None:
+    chans = (Channel(offset_um=-300.0), Channel(offset_um=150.0), Channel(offset_um=700.0))
+    c = ChipLayout(grid_angle_rad=THETA, channels=chans)
+    checked = 0
+    for ch, row in zip(chans, c.coverage(), strict=True):
+        for x in row:
+            ref = _monte_carlo_fraction(c, x.spot, ch)
+            se = math.sqrt(max(ref * (1 - ref), 1e-6) / 200_000)
+            assert abs(x.fraction - ref) < 4 * se + 1e-6
+            checked += 1
+        assert [x.s_um for x in row] == sorted(x.s_um for x in row)
+    assert checked > 0
+    assert len(c.uncovered_spots()) > 0
+
+
+def test_tilted_channel_shells() -> None:
+    c = ChipLayout(grid_angle_rad=THETA)
+    shells = c.channel_shells()
+    centres = c.spot_centers_um()
+    for s in shells:
+        assert s.is_closed
+        assert s.volume() == pytest.approx(10000.0 * 200.0 * 100.0, rel=1e-9)
+    for k in range(25):
+        probe = (float(centres[k, 0]), float(centres[k, 1]), 50.0)
+        assert nf.point_in_shell(shells[k // 5], probe)
+
+
+def test_crossing_channels_rejected() -> None:
+    with pytest.raises(ValueError, match="overlap"):
+        ChipLayout(channels=(Channel(offset_um=0.0), Channel(offset_um=0.0, angle_rad=0.3)))
+
+
+def test_channel_must_cross_field() -> None:
+    with pytest.raises(ValueError, match="cross the field"):
+        ChipLayout(channels=(Channel(offset_um=2600.0),))
+    with pytest.raises(ValueError, match="shorter"):
+        ChipLayout(channels=(Channel(offset_um=0.0, length_um=4000.0),))
