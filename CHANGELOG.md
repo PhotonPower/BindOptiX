@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Z4, Teil 1: `bindoptix.continuum` (Konvektion–Diffusion im Längsschnitt des Kanals, mehrere
+  Spezies, kompetitive Langmuir-Kinetik auf Spotbereichen, implizites Euler-Verfahren, exakte
+  Massenbilanz, stationäre Lösung für lineare Oberflächensenken), `DuctFlow.width_averaged_velocity_um_s`;
+  Testfälle T12–T14.
+
 - Z3, Teil 3: `bindoptix.wall` (behinderte Diffusion und Sedimentation nahe dem Boden, Itô-Drift),
   Option `wall_hydrodynamics` mit Kontaktabstand in `ChannelModel`; Testfall T34; Messplan für die
   Wand- und Zellparameter (`docs/messplan-wandparameter.md`). Z3 abgeschlossen.
