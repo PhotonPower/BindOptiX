@@ -60,8 +60,17 @@ spezifische Aptamere bedeutet das: Ein kreuzreaktives Aptamer weiter stromauf ni
 die ein passendes Aptamer weiter stromab gefunden hätten. Die Reihenfolge der Aptamere in einer
 Reihe ist damit ein Designparameter, und die Klassifikation (Z10) muss die Lage berücksichtigen.
 
+## Wandhydrodynamik
+
+Mit behinderter Diffusion und Sedimentation nahe dem Boden (`bindoptix.wall`, T34; Kontaktabstand
+20 nm **P**) ändern sich die Anteile auf den Spots um höchstens 1,6 Prozentpunkte, im Rahmen des
+statistischen Fehlers (1,5 und 5 nL/min, beide Grenzfälle am Boden). Die Bremsung wirkt nur auf
+den letzten Mikrometern; die Sinkzeit über 100 µm dominiert. Die Wandhydrodynamik ist daher für
+den Einfang zweitrangig; die Wandparameter (D17) sind es nicht.
+
 ## Noch nicht im Modell
 
-Behinderte Diffusion und Reibung nahe der Wand (Brenner, Goldman–Cox–Brenner), Ausrichtung der
-Stäbchen in der Scherströmung, Motilität am Boden über das Ablösen hinaus, Pulsform und Dauer der
+Ausrichtung der Stäbchen in der Scherströmung (orientierungsgemittelte Werte),
+Gleitgeschwindigkeit aus Goldman–Cox–Brenner statt Gleitfaktor (Formel vor Verwendung im Volltext
+prüfen), Motilität am Boden über das Ablösen hinaus, Pulsform und Dauer der
 Probenzugabe, Kontinuum für Proteine (Z4).

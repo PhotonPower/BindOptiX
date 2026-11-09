@@ -29,7 +29,7 @@ from dataclasses import dataclass, field
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
 
-from bindoptix import rng
+from bindoptix import rng, wall
 from bindoptix.cells import CellModel
 from bindoptix.flow import DuctFlow
 
@@ -82,6 +82,10 @@ class ChannelModel:
         spots: capture areas.
         x_out_um: cells beyond this x leave the channel.
         brownian: switch off Brownian motion for deterministic checks.
+        wall_hydrodynamics: hindered diffusion and sedimentation near the floor
+            (``bindoptix.wall``); z is then the gap between cell surface and floor.
+        contact_gap_um: gap at which a cell counts as touching the floor (P; required > 0 with
+            wall hydrodynamics, because λ⊥ → 0 at the wall).
     """
 
     flow: DuctFlow
@@ -94,6 +98,8 @@ class ChannelModel:
     spots: tuple[Spot, ...] = field(default_factory=tuple)
     x_out_um: float = math.inf
     brownian: bool = True
+    wall_hydrodynamics: bool = False
+    contact_gap_um: float = 0.0
 
     def __post_init__(self) -> None:
         if self.floor not in ("contact", "reflect"):
@@ -106,6 +112,10 @@ class ChannelModel:
         for name in ("nonspecific_rate_s", "slip_factor", "floor_diffusion_factor"):
             if not getattr(self, name) >= 0.0:
                 raise ValueError(f"{name} must be non-negative")
+        if not (math.isfinite(self.contact_gap_um) and self.contact_gap_um >= 0.0):
+            raise ValueError("contact_gap_um must be finite and non-negative")
+        if self.wall_hydrodynamics and self.floor == "contact" and self.contact_gap_um <= 0.0:
+            raise ValueError("wall hydrodynamics need contact_gap_um > 0 (λ⊥ vanishes at the wall)")
 
 
 @dataclass
@@ -191,22 +201,37 @@ def run(
             u = fl.velocity_um_s(p[:, 1], p[:, 2]) if fl.flow_rate_um3_s > 0.0 else 0.0
             drift = np.zeros_like(p)
             drift[:, 0] += u
-            drift += v_sed + v_swim * e[free]
-            noise = np.column_stack([rng.normal(seed, ids_f, step, k) for k in range(3)])
             z0 = p[:, 2].copy()
-            q = p + drift * dt_s + sig * noise
+            if model.wall_hydrodynamics:
+                lam_p = wall.lambda_perp(z0, a_eq)
+                lam_s = wall.lambda_par(z0, a_eq)
+                drift[:, :2] += v_sed[:2] * lam_s[:, None]
+                drift[:, 2] += v_sed[2] * lam_p + d * wall.dlambda_perp(z0, a_eq)
+                drift += v_swim * e[free]
+                scale = np.column_stack([np.sqrt(lam_s), np.sqrt(lam_s), np.sqrt(lam_p)])
+                d_perp = d * lam_p
+            else:
+                drift += v_sed + v_swim * e[free]
+                scale = np.ones_like(p)
+                d_perp = np.full(free.size, d)
+            noise = np.column_stack([rng.normal(seed, ids_f, step, k) for k in range(3)])
+            q = p + drift * dt_s + sig * scale * noise
             q[:, 1] = np.where(q[:, 1] > w2, 2.0 * w2 - q[:, 1], q[:, 1])
             q[:, 1] = np.where(q[:, 1] < -w2, -2.0 * w2 - q[:, 1], q[:, 1])
             q[:, 2] = np.where(q[:, 2] > h, 2.0 * h - q[:, 2], q[:, 2])
             if model.floor == "reflect":
                 q[:, 2] = np.abs(q[:, 2])
             else:
-                hit = q[:, 2] <= 0.0
+                zc = model.contact_gap_um
+                hit = q[:, 2] <= zc
                 if d > 0.0:
                     both = ~hit
-                    pb = np.exp(-np.maximum(z0, 0.0) * np.maximum(q[:, 2], 0.0) / (d * dt_s))
+                    g0 = np.maximum(z0 - zc, 0.0)
+                    g1 = np.maximum(q[:, 2] - zc, 0.0)
+                    with np.errstate(divide="ignore", invalid="ignore"):
+                        pb = np.where(d_perp > 0.0, np.exp(-g0 * g1 / (d_perp * dt_s)), 0.0)
                     hit |= both & (rng.uniform(seed, ids_f, step, 10) < pb)
-                q[hit, 2] = 0.0
+                q[hit, 2] = zc
                 state[free[hit]] = FLOOR
             x[free] = q
 
