@@ -4,8 +4,8 @@ Status: ✅ umgesetzt und grün, ◐ teilweise, ○ geplant. Sollwerte nie aus d
 
 | Nr. | Prüfung | Referenz | Stufe | Status |
 | --- | --- | --- | --- | --- |
-| T1 | Pose Sensorsystem ↔ RTT-System, Rundreise | Identität bis 1e−12 | Z1 | ○ |
-| T2 | Spiegelregel z → −z (Beleuchtung von der Lösungsseite): polare Vektoren (Dipole) und Felder | Befund K4 (RTT-Fusion), Vorzeichen analytisch | Z1 | ○ |
+| T1 | Pose Sensorsystem ↔ RTT-System, Rundreise (Punkte, polare und axiale Vektoren, Tensoren) | Identität bis 1e−12; Drehungen nach Rodrigues im Test | Z1 | ✅ `tests/test_frames.py` |
+| T2 | Spiegelregel z → −z (Beleuchtung von der Lösungsseite): polare und axiale Vektoren, Tensoren | Befund K4 (RTT-Fusion); Kreuzprodukt ist axial, T(a × b) = T(a) × T(b); Invarianz von μᵀAμ | Z1 | ✅ `tests/test_frames.py` |
 | T3 | Anregungsfeld an einem Goldfilm (Kretschmann, p-Pol.) aus F | Transfer-Matrix, Resonanzwinkel wie K4 | Z2 | ○ |
 | T4 | Zerfallsratentensor eines Dipols über Glas / Au / Wasser über dem Abstand | Chance–Prock–Silbey bzw. Lukosz–Kunz (unabhängige Python-Rechnung im Test) | Z2 | ○ |
 | T5 | Detektionstensor: Abstrahlung in das Substrat, überkritischer Anteil, SPCE-Winkel = SPR-Winkel | Lukosz–Kunz; Lakowicz 2004 | Z2 | ○ |

@@ -41,7 +41,7 @@ Ziel der Nachweisgrenze im Ausgangswasser daher **1 KBE/mL**.
 | Stufe | Inhalt | Abnahme |
 | --- | --- | --- |
 | **Z0 Spezifikation** ✅ | Zielgrößen, Konventionen (`docs/konventionen.md`), Datenformate, Entscheidungen D1–D11; Inventareintrag im Fusionsplan; ADR-Entwurf Datenports (F, B, Antwortkarte); Volltext der Kernquellen | Spezifikation und ADR-Entwurf freigegeben |
-| **Z1 Sensorgeometrie und Bezugssysteme** | Chip über Nurbforge (Kanal, Spots, Kavitäten, SIL als Verweis), Sensorsystem (Oberfläche z = 0, Lösung z > 0), Pose zum RTT-System mit Spiegelregel, Lage der Schwerkraft (Einbaulage) | T1, T2 |
+| **Z1 Sensorgeometrie und Bezugssysteme** ◐ (Paket, Einheiten, Pose, Spiegelregel, Schwerkraft ✅; Geometrie offen) | Chip über Nurbforge (Kanal, Spots, Kavitäten, SIL als Verweis), Sensorsystem (Oberfläche z = 0, Lösung z > 0), Pose zum RTT-System mit Spiegelregel, Lage der Schwerkraft (Einbaulage) | T1, T2 |
 | **Z2 Optische Antwortkarten** | Import der Karten aus dem Ausführungsgraphen der Fusion (Pilot K5): Anregungsfeld F, Zerfalls- und Detektionstensoren je Emitterort; Interpolation zwischen Stützstellen; nichts davon wird hier gerechnet | T3–T6 |
 | **Z3 Partikel (Bakterien)** | Stäbchen als Ellipsoid (Reibung nach Perrin), Langevin-Dynamik mit Drift aus Strömung und Sedimentation, Motilität (Run-and-Tumble), sterische Wände, Einfang mit Wahrscheinlichkeit je Wandkontakt; Strömung zunächst analytisch (D7) | T7–T11, T27, T28 |
 | **Z4 Kontinuum (Proteine, Störstoffe)** | Konvektion–Diffusion im Kanal, mehrere Spezies, Oberflächenreaktion | T12–T14 |
