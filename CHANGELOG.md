@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Z3, Teil 3: `bindoptix.wall` (behinderte Diffusion und Sedimentation nahe dem Boden, Itô-Drift),
+  Option `wall_hydrodynamics` mit Kontaktabstand in `ChannelModel`; Testfall T34; Messplan für die
+  Wand- und Zellparameter (`docs/messplan-wandparameter.md`). Z3 abgeschlossen.
+
 - Z3, Teil 2: `bindoptix.chipsim` verbindet `ChipLayout` und Partikellauf (Kanalsysteme, beschnittene
   Spots, Schwerkraft je Kanal, `run_chip` mit Fängen je Gridspot); Testfall T33; Ergebnis zur
   Reihenfolge der Spots in `docs/ergebnisse-z3.md`.

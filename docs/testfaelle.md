@@ -37,6 +37,7 @@ Status: ✅ umgesetzt und grün, ◐ teilweise, ○ geplant. Sollwerte nie aus d
 | T31 | Gleiten am Boden mit u_wall = s · a · ∂u/∂z und Einfang beim Erreichen eines Spots | Wandscherung als Differenzenquotient einer langen Reihe; Ankunftszeit analytisch | Z3 | ✅ `tests/test_transport.py` |
 | T32 | Strömung im Rechteckkanal: Durchfluss aus der Reihe, Grenzfall breiter Kanal (ebene Poiseuille-Strömung), Wandscherung, Haftbedingung | bruus2008, Quadratur | Z3 | ✅ `tests/test_transport.py` |
 | T33 | Chip und Partikel: Sensor- ↔ Kanalsystem (Rundreise), Spots der Gridreihen im Kanalsystem, beschnittene Spotflächen = Überdeckung, Schwerkraft gedreht, Lauf über das Layout = direkter Lauf, Fänge je Gridspot | analytisch; Gleichheit mit dem direkten Lauf | Z3 | ✅ `tests/test_chipsim.py` |
+| T34 | Wandhydrodynamik: λ⊥ gegen Brenners exakte Reihe (0,05 ≤ h/a ≤ 10, 2 %), Grenzwerte und Ableitung, λ∥ nach Faxén, Boltzmann-Gleichgewicht mit ortsabhängigem D (Itô-Drift), gebremste Annäherung an den Boden | brenner1961 (Reihe im Test), bevan2000, Quadratur | Z3 | ✅ `tests/test_wall.py` |
 
 T3–T5 prüfen exportierte Karten aus hp-FEM bzw. CliffordBem und warten auf deren Export
 (`docs/vorschlaege/export-antwortkarte.md`). Datenmodell, Interpolation, Ausbeute und Format sind

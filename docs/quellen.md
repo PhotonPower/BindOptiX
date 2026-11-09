@@ -26,3 +26,5 @@ prüfen).
 | goldman1967 | A. J. Goldman, R. G. Cox, H. Brenner, „Slow viscous motion of a sphere parallel to a plane wall – II Couette flow“, Chem. Eng. Sci. 22 (1967) 653–660 | Z | Abschätzung: Gleiten abgesunkener Zellen am Boden (Z3) |
 | bruus2008 | H. Bruus, *Theoretical Microfluidics*, Oxford University Press 2008 | Z | `bindoptix.flow`: Poiseuille-Strömung im Rechteckkanal, T32 |
 | perrin1936 | F. Perrin, „Mouvement brownien d'un ellipsoïde (II). Rotation libre et dépolarisation des fluorescences. Translation et diffusion de molécules ellipsoïdales“, J. Phys. Radium 7 (1936) 1–11 | Z | T27: Reibung des Ellipsoids, gemittelt |
+| brenner1961 | H. Brenner, „The slow motion of a sphere through a viscous fluid towards a plane surface“, Chem. Eng. Sci. 16 (1961) 242–251 | Z | T34: exakte Reihe für λ⊥ |
+| bevan2000 | M. A. Bevan, D. C. Prieve, „Hindered diffusion of colloidal particles very near to a wall: Revisited“, J. Chem. Phys. 113 (2000) 1228–1236 | Z | `bindoptix.wall`: Näherung für λ⊥ |
