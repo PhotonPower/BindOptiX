@@ -41,6 +41,25 @@ Statistischer Fehler bei 1 500 Zellen: ±0,5 bis ±1,2 Prozentpunkte.
    das Ergebnis um mehr als einen Faktor 3. Sie gehören auf die Liste der ersten Messungen (D10,
    D17).
 
+## Reihenfolge der Spots (D15)
+
+Skript `experiments/z3_spotreihenfolge.py`: ganzer Chip über `bindoptix.chipsim.run_chip`,
+schräges Grid (tan θ = 1/5) mit einem Kanal je Gridreihe, 5 nL/min je Kanal, 1 500 Zellen je
+Kanal, 6 h, alle Spots fangen sofort (jedes Aptamer passt).
+
+| Boden | eingefangen gesamt | Spot 1 (stromauf) | Spot 2 | Spot 3 | Spot 4 | Spot 5 |
+| --- | --- | --- | --- | --- | --- | --- |
+| Zellen bleiben liegen | 6,2 % | 1,6 % | 1,1 % | 1,3 % | 1,1 % | 1,1 % |
+| Zellen gleiten | 29,9 % | 10,5 % | 5,2 % | 5,0 % | 4,5 % | 4,7 % |
+
+(Anteile an allen gestarteten Zellen, Summe über die fünf Kanäle.)
+
+Gleiten die Zellen, fängt der erste Spot jeder Reihe etwa doppelt so viel wie die folgenden:
+Er sammelt alles, was stromauf landet und herangleitet, und schattet die übrigen ab. Für
+spezifische Aptamere bedeutet das: Ein kreuzreaktives Aptamer weiter stromauf nimmt Zellen weg,
+die ein passendes Aptamer weiter stromab gefunden hätten. Die Reihenfolge der Aptamere in einer
+Reihe ist damit ein Designparameter, und die Klassifikation (Z10) muss die Lage berücksichtigen.
+
 ## Noch nicht im Modell
 
 Behinderte Diffusion und Reibung nahe der Wand (Brenner, Goldman–Cox–Brenner), Ausrichtung der
