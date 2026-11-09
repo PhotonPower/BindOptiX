@@ -4,7 +4,7 @@
 > `docs-fusion-plan`, `docs/rtt-fusion/plan.md`, Abschnitte 6.2 und 6.3). Abschnitt 6.2 verlangt
 > für neue Darstellungen ein ADR. Bezug: Pilot K4 (RTT-Fusion, abgenommen), Pilot K5 (geplant, P5).
 
-**Status:** vorgeschlagen
+**Status:** freigegeben in BindOptiX am 2026-11-09 (PR #1); im Fusionsplan Entscheidung D13, dort offen
 
 ## Kontext
 

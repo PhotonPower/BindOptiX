@@ -1,6 +1,7 @@
 # Plan und Stufen
 
-> Erstfassung 2026-11-09. Entscheidungen des Maintainers (offen: D1–D11) stehen am Ende.
+> Erstfassung 2026-11-09. Z0 abgenommen am 2026-11-09 (PR #1). Entscheidungen am Ende: D1–D5 und
+> D12–D14 entschieden, die übrigen offen. Abschätzung zum Einfang: `docs/abschaetzung-einfang.md`.
 
 ## Rolle im Framework
 
@@ -23,6 +24,10 @@ Die Kopplung ist einseitig und damit ein azyklischer Ausführungsgraph
 
 ## Zielgrößen
 
+Anwendung: Legionellen in Wasser (D2). Anforderung aus dem Regelwerk: technischer Maßnahmenwert
+der TrinkwV 100 KBE/100 mL; 42. BImSchV Prüfwerte 100 und 1 000, Maßnahmenwert 10 000 KBE/100 mL.
+Ziel der Nachweisgrenze im Ausgangswasser daher **1 KBE/mL**.
+
 | Größe | Definition | Stufe |
 | --- | --- | --- |
 | Nachweisgrenze | kleinste Konzentration (KBE/mL), bei der ein Stamm mit vorgegebener Sicherheit erkannt wird | Z8, Z10 |
@@ -35,10 +40,10 @@ Die Kopplung ist einseitig und damit ein azyklischer Ausführungsgraph
 
 | Stufe | Inhalt | Abnahme |
 | --- | --- | --- |
-| **Z0 Spezifikation** | Zielgrößen, Konventionen (`docs/konventionen.md`), Datenformate, Entscheidungen D1–D11; Inventareintrag im Fusionsplan; ADR-Entwurf Datenports (F, B, Antwortkarte); Volltext der Kernquellen | Spezifikation und ADR-Entwurf freigegeben |
+| **Z0 Spezifikation** ✅ | Zielgrößen, Konventionen (`docs/konventionen.md`), Datenformate, Entscheidungen D1–D11; Inventareintrag im Fusionsplan; ADR-Entwurf Datenports (F, B, Antwortkarte); Volltext der Kernquellen | Spezifikation und ADR-Entwurf freigegeben |
 | **Z1 Sensorgeometrie und Bezugssysteme** | Chip über Nurbforge (Kanal, Spots, Kavitäten, SIL als Verweis), Sensorsystem (Oberfläche z = 0, Lösung z > 0), Pose zum RTT-System mit Spiegelregel, Lage der Schwerkraft (Einbaulage) | T1, T2 |
 | **Z2 Optische Antwortkarten** | Import der Karten aus dem Ausführungsgraphen der Fusion (Pilot K5): Anregungsfeld F, Zerfalls- und Detektionstensoren je Emitterort; Interpolation zwischen Stützstellen; nichts davon wird hier gerechnet | T3–T6 |
-| **Z3 Partikel (Bakterien)** | Langevin-Dynamik mit Drift aus Strömung und Sedimentation, Motilität (Run-and-Tumble), sterische Wände, Einfang mit Wahrscheinlichkeit je Wandkontakt; Strömung zunächst analytisch (D7) | T7–T11 |
+| **Z3 Partikel (Bakterien)** | Stäbchen als Ellipsoid (Reibung nach Perrin), Langevin-Dynamik mit Drift aus Strömung und Sedimentation, Motilität (Run-and-Tumble), sterische Wände, Einfang mit Wahrscheinlichkeit je Wandkontakt; Strömung zunächst analytisch (D7) | T7–T11, T27, T28 |
 | **Z4 Kontinuum (Proteine, Störstoffe)** | Konvektion–Diffusion im Kanal, mehrere Spezies, Oberflächenreaktion | T12–T14 |
 | **Z5 Bindung und Rezeptorzustände** | kompetitive Langmuir-Kinetik, irreversibler Einfang mit Avidität für Bakterien, unspezifische Bindung; Rezeptorzustände (frei, Ziel gebunden, Störstoff gebunden) als Port B; Modelle als Template-Parameter (kein NVRTC) | T15, T16 |
 | **Z6 Signalmodell** | Anregungsrate aus F, Quantenausbeute und Sammlung aus der Antwortkarte, je Stichprobe des Q-Ensembles (nicht über gemittelte Tensoren, siehe ADR-Entwurf); Bleichen; Untergrund (Gold-Photolumineszenz, Autofluoreszenz von 2PP-Lack, Glas und Bakterien) als Parameter oder aus Scattuccino; Kameramodell (Schrot-, Lese-, Dunkelrauschen) | T17–T20 |
@@ -54,18 +59,21 @@ Reihenfolge: Z2 vor Z3, weil die optischen Karten zeigen, welche Bereiche der Ob
 Z4, weil Bakterien bei realistischen Konzentrationen einzelne Teilchen sind (10³ KBE/mL ≈ 10 Zellen
 in 10 µL), kein Konzentrationsfeld.
 
-## Entscheidungen (offen, Issues mit Label `frage`)
+## Entscheidungen
 
-| Nr. | Frage | Vorschlag |
-| --- | --- | --- |
-| D1 | Name: Repository „BindOptiX“, GitHub-Beschreibung „PhotoKinX“ | BindOptiX überall; Beschreibung anpassen |
-| D2 | Zielorganismen und Stämme, Probenmatrix, Konzentrationsbereich | offen – bestimmt Größe, Motilität, Störstoffe, Klassen |
-| D3 | Aptamer-Panel, Multiplex (räumlich getrennte Spots oder Farben), Fluorophore, Signalprinzip (Turn-on durch Konformation oder Ablösung, Turn-off) | offen; bis dahin ein Aptamer, ein Farbstoff, Turn-on |
-| D4 | Schichtstapel und Anregung: Golddicke, Graphen ja/nein, Kavitäten, Wellenlänge, Seite, Winkel, Leistung | offen; Referenz: Glas / Au 50 nm / Wasser wie K4 |
-| D5 | Fluidik: Durchfluss oder stehender Tropfen, Kanalmaße, Einbaulage | offen – bestimmt Sedimentation und Einfang |
-| D6 | Auslese: Kamera, Belichtung, digitales Zählen oder integriertes Signal | digitales Zählen je Spot |
-| D7 | Strömung | analytisch (Poiseuille, Hele-Shaw) bis Z7; danach Erweiterungsvorschlag an hp-FEM (Stokes, Taylor-Hood) unter `docs/vorschlaege/` oder kleiner eigener Löser; keine fremden CFD-Pakete (`docs/abhaengigkeiten.md`) |
-| D8 | Sprache und Kern | Python-Referenz (Z1–Z10), C++/CUDA-Kern danach (Z11), wie BWPM und Voxelspaetzle; README entsprechend anpassen |
-| D9 | Motilität: lebende und tote Zellen getrennt modellieren | ja, Run-and-Tumble als Parameter je Stamm |
-| D10 | Messdaten für die Kalibrierung (Bindungskurven, Einfang je Kontakt, Untergrund) | offen; bis dahin Literaturwerte mit Kennzeichnung |
-| D11 | Optimierer | BoTorch (wie `hpfem.opt`), Mehrziel über die Zielgrößen |
+| Nr. | Frage | Entscheidung bzw. Vorschlag | Stand |
+| --- | --- | --- | --- |
+| D1 | Name | BindOptiX überall; GitHub-Beschreibung angepasst | entschieden 2026-11-09 |
+| D2 | Zielorganismen, Probe, Konzentration | Legionellen; zuerst vorkonzentrierte Proben im Aptamer-Puffer, danach Leitungswasser direkt (D12); Zielkonzentration 1 KBE/mL im Ausgangswasser (Regelwerk) | entschieden 2026-11-09 |
+| D3 | Panel und Signal | Aptamere aus der Literatur, Turn-on; 25 Subtypen gestuft (D13). Literatur bisher nur für L. pneumophila bzw. Serogruppe 1, Kreuzreaktivität zwischen Subtypen unbekannt | entschieden 2026-11-09 |
+| D4 | Schichtstapel und Anregung | zuerst Gold (Thiol-Anker), danach Graphit; Transmissionsmessung; Wellenlänge folgt aus dem Fluorophor, sichtbar (Vorschlag: rot, ≥ 600 nm). Offen: Golddicke oder perforierter Film; Graphit nur als dünne Lage transmissionstauglich | teilweise entschieden |
+| D5 | Fluidik | Durchfluss, Kanal < 1 mm, horizontal. Offen: Sensorfläche als Kanalboden (Annahme) | teilweise entschieden |
+| D6 | Auslese | digitales Zählen je Spot | Vorschlag |
+| D7 | Strömung | analytisch (Poiseuille, Hele-Shaw) bis Z7; danach Erweiterungsvorschlag an hp-FEM (Stokes, Taylor-Hood) unter `docs/vorschlaege/` oder kleiner eigener Löser; keine fremden CFD-Pakete (`docs/abhaengigkeiten.md`) | Vorschlag |
+| D8 | Sprache und Kern | Python-Referenz (Z1–Z10), C++/CUDA-Kern danach (Z11) | Vorschlag |
+| D9 | Motilität | Run-and-Tumble als Parameter, lebend und tot getrennt; Motilität von Legionellen in der Probe messen | Vorschlag |
+| D10 | Messdaten für die Kalibrierung | offen; bis dahin Literaturwerte mit Kennzeichnung | offen |
+| D11 | Optimierer | BoTorch (wie `hpfem.opt`), Mehrziel über die Zielgrößen | Vorschlag |
+| D12 | Probenvorbereitung | Phase 1: Vorkonzentrierung im Labor (z. B. Membranfiltration, dabei Wechsel in den Aptamer-Puffer); Phase 2: Leitungswasser direkt. Phase 2 verlangt Einfang beim Durchströmen oder Konzentrierung im Gerät (Abschätzung, Szenario D) | entschieden 2026-11-09 |
+| D13 | Klassen | gestuft: Legionella spp. gegen Rest, L. pneumophila, Serogruppe 1, dann weitere Subtypen bis 25; die Simulation liefert die Anforderungen an das Panel | Vorschlag |
+| D14 | Gesichtsfeld von SIL und Relay-Optik gegen nötige Einfangfläche | Gesichtsfeld Ø 5 mm (19,6 mm²). Phase 1: Sedimentation im Stillstand reicht bei Konzentrat ≤ 10 µL (Kammer 0,5 mm, nominal 5 h) bzw. ≤ 2 µL (0,1 mm, 1 h); Z8 in Phase 1 nicht nötig. Phase 2 unverändert: Einfang beim Durchströmen | entschieden 2026-11-09 |

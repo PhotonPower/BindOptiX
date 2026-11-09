@@ -16,3 +16,10 @@ prüfen).
 | anger2006 | P. Anger, P. Bharadwaj, L. Novotny, „Enhancement and quenching of single-molecule fluorescence“, Phys. Rev. Lett. 96 (2006) 113002 | Z | Z6, T18: Quantenausbeute nahe Metall |
 | novotny2012 | L. Novotny, B. Hecht, *Principles of Nano-Optics*, 2. Aufl., Cambridge University Press 2012 | Z | ADR-Entwurf Datenports: Dipolleistung, Green-Tensor |
 | defeijter1978 | J. A. de Feijter, J. Benjamins, F. A. Veer, „Ellipsometry as a tool to study the adsorption behavior of synthetic and biopolymers at the air–water interface“, Biopolymers 17 (1978) 1759–1772 | Z | label-free Grenzfall (K4) |
+| happel1983 | J. Happel, H. Brenner, *Low Reynolds Number Hydrodynamics*, Martinus Nijhoff 1983 | Z | T27: Reibung des Ellipsoids |
+| sampson1891 | R. A. Sampson, „On Stokes's current function“, Phil. Trans. R. Soc. A 182 (1891) 449–518 | Z | Abschätzung, Szenario D: Strömung durch ein Loch in dünner Platte |
+| trinkwv | Trinkwasserverordnung, Anlage 3 Teil II: technischer Maßnahmenwert Legionellen 100 KBE/100 mL | Z | Zielgröße Nachweisgrenze |
+| bimschv42 | 42. BImSchV, Anlage 1: Prüfwerte 100 und 1 000, Maßnahmenwert 10 000 KBE/100 mL | Z | Zielgröße Nachweisgrenze |
+| saad2020 | M. Saad, D. Chinerman, M. Tabrizian, S. P. Faucher, „Identification of two aptamers binding to Legionella pneumophila with high affinity and specificity“, Sci. Rep. 10 (2020) 9145 | Z | D3: Aptamere |
+| xiong2022 | L. Xiong et al., „DNA aptamers specific for Legionella pneumophila: systematic evolution of ligands by exponential enrichment in whole bacterial cells“, Biotechnol. Lett. (2022) | Z | D3: Aptamere |
+| shaukat2024 | A. Shaukat et al., „Cell-SELEX for aptamer discovery and its utilization in constructing electrochemical biosensor for rapid and highly sensitive detection of Legionella pneumophila serogroup 1“, Sci. Rep. 14 (2024), doi:10.1038/s41598-024-65075-4 | Z | D3: Aptamere, Serogruppe 1 |
