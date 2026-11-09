@@ -24,8 +24,8 @@ Status: ✅ umgesetzt und grün, ◐ teilweise, ○ geplant. Sollwerte nie aus d
 | T18 | Modifizierte Quantenausbeute aus den Tensoren | Formel mit γ_nr⁰ = γ_r⁰(1 − q₀)/q₀, unabhängige Rechnung | Z6 | ✅ `tests/test_ports.py`, `tests/test_signal.py` |
 | T19 | Bleichen: monoexponentiell bei konstanter Anregung, Photonen im Zeitfenster | analytisch, Quadratur | Z6 | ✅ `tests/test_signal.py` |
 | T20 | Kamera: Mittel und Varianz; Überschreitungswahrscheinlichkeit Poisson + Gauß gegen Monte Carlo; Schwelle für eine Fehlalarmdichte | Poisson plus Gauß-Leserauschen, Monte Carlo | Z6 | ✅ `tests/test_signal.py` |
-| T21 | Spot-Erkennung auf synthetischen Bildern mit bekannter Wahrheit | Trefferquote, Fehlalarme gegen Vorgabe | Z7 | ○ |
-| T22 | Protokoll: Waschschritt entfernt reversibel Gebundenes nach k_off | analytisch | Z7 | ○ |
+| T21 | Spot-Erkennung auf synthetischen Bildern mit bekannter Wahrheit: Differenzbild + Persistenz findet ≥ 24/25 Zellen ohne Fehlalarm; ohne Referenzbild > 10 Fehlalarme durch die Ungleichmäßigkeit, ohne Persistenz zählen flüchtige Partikel; Zählung je Spot mit Randtoleranz; Photonenerhaltung beim Abbilden | bekannte Wahrheit | Z7 | ✅ `tests/test_readout.py` |
+| T22 | Protokoll: Waschschritt entfernt reversibel Gebundenes nach exp(−k_off t) (2 %) | analytisch | Z7 | ✅ `tests/test_readout.py` |
 | T23 | Erwärmung: Bilanz ∫q dV = absorbierte Leistung aus F | Energieerhaltung | Z8 | ○ |
 | T24 | Optische Kraft auf eine Kugel aus der Kraftkarte | Mie (CliffordBem-Sollwerte) | Z8 | ○ |
 | T25 | Klassifikation: Spielproblem mit bekannter Konfusionsmatrix | analytisch | Z10 | ○ |
@@ -40,6 +40,7 @@ Status: ✅ umgesetzt und grün, ◐ teilweise, ○ geplant. Sollwerte nie aus d
 | T34 | Wandhydrodynamik: λ⊥ gegen Brenners exakte Reihe (0,05 ≤ h/a ≤ 10, 2 %), Grenzwerte und Ableitung, λ∥ nach Faxén, Boltzmann-Gleichgewicht mit ortsabhängigem D (Itô-Drift), gebremste Annäherung an den Boden | brenner1961 (Reihe im Test), bevan2000, Quadratur | Z3 | ✅ `tests/test_wall.py` |
 | T35 | Kontinuum im Kanalvolumen (3D): quer gleichförmiger Fall = 2D-Lösung × Breite (1e−10), absorbierender Spot im Rechteckkanal gegen lokale Lévêque-Lösung mit der Wandscherung γ̇(y) (4 %), Massenbilanz und Symmetrie mit zwei Spezies, Spots des Chiplayouts als Reaktionsflächen | T12, Lévêque, Bilanz | Z4 | ✅ `tests/test_continuum3d.py` |
 | T36 | Kopplung Fouling → Einfang: ohne Fouling identisch zum Lauf mit konstanter Fangrate; mit Fouling weniger Fänge, keine Fänge nach Füllung der Spots, Füllfront wandert stromab, Port B konsistent; Affinität je Spot (Zeile der Bindungsmatrix) | Gleichheit mit dem ungekoppelten Lauf, Grenzfälle | Z5 | ✅ `tests/test_binding.py` |
+| T37 | Protokollmechanik: Fortsetzen eines Laufs bitgleich zum Durchlauf, Einspülplan, wartende Zellen bewegen sich nicht, Inkubation ohne Strömung ohne Drift | Gleichheit, analytisch | Z7 | ✅ `tests/test_readout.py` |
 
 T3–T5 prüfen exportierte Karten aus hp-FEM bzw. CliffordBem und warten auf deren Export
 (`docs/vorschlaege/export-antwortkarte.md`). Datenmodell, Interpolation, Ausbeute und Format sind

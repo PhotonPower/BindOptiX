@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Z7: `bindoptix.protocol` (Phasen, Einspülplan, Partikel und Kontinuum über Phasen),
+  `particles.run` mit `resume` und `start_times_s`, `bindoptix.imaging` (Bildsynthese mit exakter
+  Pixelintegration, Ungleichmäßigkeit), `bindoptix.readout` (Differenzbild, Aperturschwelle für eine
+  Fehlalarmdichte, Persistenz, Zählung je Spot mit Randtoleranz); Testfälle T21, T22, T37;
+  Ende-zu-Ende-Lauf `docs/ergebnisse-z7.md`.
+
 - Z6, Teil 1: `bindoptix.signal` (Farbstoff, Ensembles je Rezeptorzustand, Anregungsrate aus der
   Feldkarte mit Orientierungsfaktor, Ausbeute und Sammlung aus der Antwortkarte je Stichprobe,
   Bleichen, Kamera mit Poisson- und Lesefehler, Schwelle für eine Fehlalarmdichte),

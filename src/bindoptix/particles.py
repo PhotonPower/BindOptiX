@@ -37,8 +37,8 @@ from bindoptix.flow import DuctFlow
 FloatArray = NDArray[np.float64]
 IntArray = NDArray[np.int64]
 
-FREE, FLOOR, CAPTURED, STUCK, EXITED = 0, 1, 2, 3, 4
-STATE_NAMES = ("free", "floor", "captured", "stuck", "exited")
+FREE, FLOOR, CAPTURED, STUCK, EXITED, WAITING = 0, 1, 2, 3, 4, 5
+STATE_NAMES = ("free", "floor", "captured", "stuck", "exited", "waiting")
 
 
 @dataclass(frozen=True)
@@ -131,6 +131,11 @@ class RunResult:
     spot: IntArray
     event_time_s: FloatArray
     snapshots_um: dict[float, FloatArray]
+    orientation: FloatArray = field(default_factory=lambda: np.zeros((0, 3)))
+    ids: IntArray = field(default_factory=lambda: np.zeros(0, dtype=np.int64))
+    steps: int = 0
+    t_s: float = 0.0
+    start_times_s: FloatArray = field(default_factory=lambda: np.zeros(0))
 
     def count(self, state: int) -> int:
         return int(np.count_nonzero(self.state == state))
@@ -156,25 +161,46 @@ def _turn(e: FloatArray, cos_a: float, phi: FloatArray) -> FloatArray:
 
 def run(
     model: ChannelModel,
-    start_um: ArrayLike,
+    start_um: ArrayLike | None,
     duration_s: float,
     dt_s: float,
     seed: int,
     ids: ArrayLike | None = None,
     snapshot_times_s: tuple[float, ...] = (),
+    resume: RunResult | None = None,
+    start_times_s: ArrayLike | None = None,
 ) -> RunResult:
     """Simulate cells from ``start_um`` (N, 3) for ``duration_s`` with time step ``dt_s``.
 
     ``ids`` (default 0 … N−1) select the random streams; the same ids give the same paths in any
-    batch. Snapshots record positions at the first step at or after each requested time.
+    batch. Snapshots record positions at the first step at or after each requested (absolute)
+    time. ``resume`` continues a previous run (its positions, states, orientations, ids, clock
+    and step counter; ``start_um`` and ``ids`` are then ignored), e.g. with another model for
+    the next phase of a protocol. ``start_times_s`` lets cells enter later: they wait at their
+    start position until then (continuous injection).
     """
-    x = np.array(start_um, dtype=np.float64).reshape(-1, 3)
-    n = x.shape[0]
-    pid = np.arange(n, dtype=np.int64) if ids is None else np.asarray(ids, dtype=np.int64)
-    if pid.shape != (n,):
-        raise ValueError("ids must have one entry per particle")
     if not (dt_s > 0.0 and duration_s >= 0.0):
         raise ValueError("dt_s must be positive and duration_s non-negative")
+    if resume is not None:
+        x = resume.position_um.copy()
+        n = x.shape[0]
+        pid = resume.ids.copy()
+        step0, t0 = resume.steps, resume.t_s
+        t_start = resume.start_times_s.copy()
+    else:
+        if start_um is None:
+            raise ValueError("start_um is required without resume")
+        x = np.array(start_um, dtype=np.float64).reshape(-1, 3)
+        n = x.shape[0]
+        pid = np.arange(n, dtype=np.int64) if ids is None else np.asarray(ids, dtype=np.int64)
+        step0, t0 = 0, 0.0
+        t_start = (
+            np.zeros(n) if start_times_s is None else np.asarray(start_times_s, dtype=np.float64)
+        )
+    if pid.shape != (n,):
+        raise ValueError("ids must have one entry per particle")
+    if t_start.shape != (n,):
+        raise ValueError("start_times_s must have one entry per particle")
     fl, cell = model.flow, model.cell
     w2, h = 0.5 * fl.width_um, fl.height_um
     d = cell.diffusion_um2_s if model.brownian else 0.0
@@ -186,19 +212,35 @@ def run(
     a_eq = cell.equivalent_radius_um
     rates = np.array([s.capture_rate_s for s in model.spots], dtype=np.float64)
 
-    state = np.full(n, FREE, dtype=np.int64)
-    if model.floor == "contact":
-        state[x[:, 2] <= 0.0] = FLOOR
-        x[x[:, 2] <= 0.0, 2] = 0.0
-    spot = np.full(n, -1, dtype=np.int64)
-    t_event = np.full(n, math.nan)
-    e = _random_unit(seed, pid, 0, 100) if v_swim > 0.0 else np.zeros((n, 3))
+    if resume is not None:
+        state, spot = resume.state.copy(), resume.spot.copy()
+        t_event = resume.event_time_s.copy()
+        e = resume.orientation.copy() if resume.orientation.shape == (n, 3) else np.zeros((n, 3))
+        if v_swim > 0.0 and not np.any(e):
+            e = _random_unit(seed, pid, 0, 100)
+    else:
+        state = np.where(t_start > 0.0, WAITING, FREE).astype(np.int64)
+        if model.floor == "contact":
+            on_floor = (state == FREE) & (x[:, 2] <= 0.0)
+            state[on_floor] = FLOOR
+            x[on_floor, 2] = 0.0
+        spot = np.full(n, -1, dtype=np.int64)
+        t_event = np.full(n, math.nan)
+        e = _random_unit(seed, pid, 0, 100) if v_swim > 0.0 else np.zeros((n, 3))
     snaps: dict[float, FloatArray] = {}
     pending = sorted(snapshot_times_s)
     n_steps = int(math.ceil(duration_s / dt_s - 1e-9))
 
-    for step in range(1, n_steps + 1):
-        t = step * dt_s
+    for k_step in range(1, n_steps + 1):
+        step = step0 + k_step
+        t = t0 + k_step * dt_s
+        wake = (state == WAITING) & (t_start <= t - dt_s + 1e-9 * dt_s)
+        if wake.any():
+            state[wake] = FREE
+            if model.floor == "contact":
+                down = wake & (x[:, 2] <= 0.0)
+                state[down] = FLOOR
+                x[down, 2] = 0.0
         free = np.flatnonzero(state == FREE)
         if free.size:
             p, ids_f = x[free], pid[free]
@@ -282,7 +324,9 @@ def run(
         while pending and t >= pending[0] - 1e-9 * dt_s:
             snaps[pending.pop(0)] = x.copy()
 
-    return RunResult(x, state, spot, t_event, snaps)
+    return RunResult(
+        x, state, spot, t_event, snaps, e, pid, step0 + n_steps, t0 + n_steps * dt_s, t_start
+    )
 
 
 def inlet_positions(flow: DuctFlow, n: int, seed: int, x_um: float = 0.0) -> FloatArray:
