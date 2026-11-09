@@ -1,2 +1,33 @@
 # BindOptiX
-BindOptiX ist eine GPU-beschleunigte C++/CUDA-Multiphysik-Engine mit Python-Anbindung, die als digitaler Zwilling für optische Biosensoren Mikrofluidik, aktive Kraftfelder, thermo-optische Effekte und biochemische Bindungskinetik nahtlos mit wellen- und strahlenoptischen Solvern zur holistischen Sensoroptimierung koppelt.
+
+Digitaler Zwilling optischer Biosensoren über der Zeit: Einfang von Bakterien und Molekülen,
+Bindung an Rezeptoren, Assay-Abläufe und das Signal auf der Kamera.
+
+**Rolle im Framework:** BindOptiX ist die Zeit-, Transport- und Biologieschicht über der Fusion
+(`PhotonPower/RTT-Fusion`, Raytatouille). Licht rechnen die vorhandenen Löser: BioOptoMD liefert
+die Rezeptorschicht und die Fluorophor-Dipole je Bindungszustand, hp-FEM und CliffordBem das
+Anregungsfeld, Zerfallsraten und Quenching, Raytatouille mit Field Tracing die Abbildung durch SIL
+und Relay-Optik. BindOptiX verbindet diese Karten mit Strömung, Transport (Langevin-Partikel für
+Zellen, Kontinuum für Moleküle), Bindungskinetik und Kameramodell und liefert die Zielgrößen:
+Nachweisgrenze, Zeit bis zum Ergebnis, Erkennung der Stämme.
+
+**Erster Anwendungsfall:** Fluoreszenz-Biosensor zur Erkennung von Bakterienstämmen
+(Aptamere mit Fluorophor auf Gold/Graphen, optional plasmonische Kavitäten, Glassubstrat,
+2PP-gedruckte SIL mit Spiegelrand, Relay-Optik, Kamera).
+
+**Stand:** Spezifikation (Stufe Z0, Entwurf). Siehe [docs/roadmap.md](docs/roadmap.md).
+
+## Dokumentation
+
+- [Plan und Stufen](docs/roadmap.md)
+- [Konventionen](docs/konventionen.md)
+- [Testfälle](docs/testfaelle.md)
+- [Abhängigkeiten](docs/abhaengigkeiten.md)
+- [Quellen](docs/quellen.md)
+- [ADR-Entwurf: Datenports F, B und Antwortkarte](docs/adr-entwurf-datenports.md)
+- [Inventareintrag für den Fusionsplan](docs/inventar-fusionsplan.md)
+- [Regeln für Programmieragenten](AGENTS.md)
+
+## Lizenz
+
+MIT, siehe [LICENSE](LICENSE).
