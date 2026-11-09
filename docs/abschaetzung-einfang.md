@@ -78,12 +78,39 @@ anderen Ort für die Sammeloptik.
 **Nachweis:** Bei Poisson-verteilten Zellen braucht man im Mittel λ ≈ 3 eingefangene Zellen für
 95 % Wahrscheinlichkeit, mindestens eine zu sehen.
 
+## Gesichtsfeld 5 mm (D14)
+
+Gesichtsfeld von SIL und Relay-Optik: Durchmesser 5 mm, also A ≈ 19,6 mm². Stillstand über dem
+Sensor (Szenario C), das ganze Konzentrat steht über dem Gesichtsfeld (V_c = A · h):
+
+| Kammerhöhe h | Volumen V_c | Sinkzeit nominal | klein | groß |
+| --- | --- | --- | --- | --- |
+| 100 µm | 2,0 µL | 1,1 h | 3,6 h | 0,3 h |
+| 250 µm | 4,9 µL | 2,7 h | 9,0 h | 0,6 h |
+| 500 µm | 9,8 µL | 5,4 h | 18 h | 1,3 h |
+| 1 mm | 19,6 µL | 11 h | 36 h | 2,6 h |
+
+Diffusion über die Kammerhöhe (h²/2D) dauert 3 h bei 100 µm und 87 h bei 500 µm; die Sedimentation
+dominiert. Überströmung (Szenario B) erlaubt höchstens 30 nL/min (nominal), also 5,5 h für 10 µL.
+
+**Erwartete Zellzahl:** Aus 100 mL bei 1 KBE/mL und Rückhalt η der Vorkonzentrierung (P) kommen
+100 · η Zellen ins Gesichtsfeld: 30 bis 70 bei η = 0,3 bis 0,7. Mit λ = 3 für 95 % Nachweis liegt die
+Nachweisgrenze rechnerisch bei 0,04 bis 0,1 KBE/mL, also unter der Anforderung.
+
+**Anforderung an die Fehlalarme:** Bei 30 bis 70 echten Zellen auf 19,6 mm² müssen falsch erkannte
+Spots (unspezifische Bindung, Partikel, Untergrund) deutlich unter 1 je Messung bleiben, also unter
+etwa 0,05 je mm². Das ist eine harte Vorgabe für das Signalmodell (Z6) und für die Optik.
+
+**Sammeleffizienz über das Feld:** Eine SIL ist nur in der Mitte aplanatisch. Über 5 mm ändert sich
+die Sammeleffizienz mit dem Ort; die Antwortkarte (Z2) muss das ganze Feld abdecken, und der
+Feldverlauf wird ein Designparameter (Raytatouille).
+
 ## Folgerungen
 
-1. **Phase 1 (vorkonzentriert, D12):** Das Problem ist die Fläche, nicht die Zeit. Entweder das
-   Konzentrat auf wenige µL bringen und eine große Fläche abbilden (Mosaik, Scan), oder die Zellen
-   aktiv auf das Gesichtsfeld konzentrieren (Hydrodynamik, Dielektrophorese, Magnetpartikel).
-   Damit wird Stufe Z8 (Kräfte) wahrscheinlich nötig.
+1. **Phase 1 (vorkonzentriert, D12):** Mit 5 mm Gesichtsfeld genügt Sedimentation im Stillstand,
+   wenn das Konzentrat höchstens rund 10 µL hat (Kammer 0,5 mm, nominal 5 h) bzw. 2 µL für etwa
+   1 h. Aktive Kräfte (Z8) sind dann nicht nötig. Die Kette lautet: 100 mL → ≤ 10 µL
+   (Faktor ≥ 10⁴), Zeit bis zum Ergebnis einige Stunden statt Tagen wie im Kulturverfahren.
 2. **Phase 2 (Leitungswasser direkt, D12):** Überströmung scheidet aus (Szenario A, B). Möglich ist
    nur Einfang beim Durchströmen (D) oder eine vorgeschaltete Konzentrierung im Gerät.
 3. **Motilität** kann den Einfang um Größenordnungen verbessern, wenn die Zellen motil sind und

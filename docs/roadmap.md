@@ -1,7 +1,7 @@
 # Plan und Stufen
 
 > Erstfassung 2026-11-09. Z0 abgenommen am 2026-11-09 (PR #1). Entscheidungen am Ende: D1–D5 und
-> D12, D13 entschieden, die übrigen offen. Abschätzung zum Einfang: `docs/abschaetzung-einfang.md`.
+> D12–D14 entschieden, die übrigen offen. Abschätzung zum Einfang: `docs/abschaetzung-einfang.md`.
 
 ## Rolle im Framework
 
@@ -76,4 +76,4 @@ in 10 µL), kein Konzentrationsfeld.
 | D11 | Optimierer | BoTorch (wie `hpfem.opt`), Mehrziel über die Zielgrößen | Vorschlag |
 | D12 | Probenvorbereitung | Phase 1: Vorkonzentrierung im Labor (z. B. Membranfiltration, dabei Wechsel in den Aptamer-Puffer); Phase 2: Leitungswasser direkt. Phase 2 verlangt Einfang beim Durchströmen oder Konzentrierung im Gerät (Abschätzung, Szenario D) | entschieden 2026-11-09 |
 | D13 | Klassen | gestuft: Legionella spp. gegen Rest, L. pneumophila, Serogruppe 1, dann weitere Subtypen bis 25; die Simulation liefert die Anforderungen an das Panel | Vorschlag |
-| D14 | Gesichtsfeld von SIL und Relay-Optik gegen nötige Einfangfläche | offen; laut Abschätzung braucht Phase 1 ohne aktive Konzentrierung 1–10 cm² | offen |
+| D14 | Gesichtsfeld von SIL und Relay-Optik gegen nötige Einfangfläche | Gesichtsfeld Ø 5 mm (19,6 mm²). Phase 1: Sedimentation im Stillstand reicht bei Konzentrat ≤ 10 µL (Kammer 0,5 mm, nominal 5 h) bzw. ≤ 2 µL (0,1 mm, 1 h); Z8 in Phase 1 nicht nötig. Phase 2 unverändert: Einfang beim Durchströmen | entschieden 2026-11-09 |
