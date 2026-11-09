@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Z3, Teil 2: `bindoptix.chipsim` verbindet `ChipLayout` und Partikellauf (Kanalsysteme, beschnittene
+  Spots, Schwerkraft je Kanal, `run_chip` mit Fängen je Gridspot); Testfall T33; Ergebnis zur
+  Reihenfolge der Spots in `docs/ergebnisse-z3.md`.
+
 - Z3, Teil 1: `bindoptix.cells` (Stäbchen als Ellipsoid, Sedimentation, Diffusion, Run-and-Tumble),
   `bindoptix.flow` (Poiseuille-Strömung im Rechteckkanal, Wandscherung, Säulenfluss),
   `bindoptix.rng` (zählerbasierte Zufallszahlen), `bindoptix.particles` (Langevin mit Brownscher

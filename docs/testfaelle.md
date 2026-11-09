@@ -36,6 +36,7 @@ Status: ✅ umgesetzt und grün, ◐ teilweise, ○ geplant. Sollwerte nie aus d
 | T30 | Schräges Grid und freie Kanäle: Querpositionen bei tan θ = 1/5 alle verschieden mit Abstand p/√26, Passung drehinvariant, Überdeckung Spot/Kanal gegen Monte Carlo, gedrehte Kanalkörper, sich kreuzende Kanäle abgelehnt | analytisch, Monte Carlo mit Seed | Z1 | ✅ `tests/test_chip.py` |
 | T31 | Gleiten am Boden mit u_wall = s · a · ∂u/∂z und Einfang beim Erreichen eines Spots | Wandscherung als Differenzenquotient einer langen Reihe; Ankunftszeit analytisch | Z3 | ✅ `tests/test_transport.py` |
 | T32 | Strömung im Rechteckkanal: Durchfluss aus der Reihe, Grenzfall breiter Kanal (ebene Poiseuille-Strömung), Wandscherung, Haftbedingung | bruus2008, Quadratur | Z3 | ✅ `tests/test_transport.py` |
+| T33 | Chip und Partikel: Sensor- ↔ Kanalsystem (Rundreise), Spots der Gridreihen im Kanalsystem, beschnittene Spotflächen = Überdeckung, Schwerkraft gedreht, Lauf über das Layout = direkter Lauf, Fänge je Gridspot | analytisch; Gleichheit mit dem direkten Lauf | Z3 | ✅ `tests/test_chipsim.py` |
 
 T3–T5 prüfen exportierte Karten aus hp-FEM bzw. CliffordBem und warten auf deren Export
 (`docs/vorschlaege/export-antwortkarte.md`). Datenmodell, Interpolation, Ausbeute und Format sind
