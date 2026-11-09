@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Z4, Teil 2: `bindoptix.continuum3d.ChannelVolume` (Konvektion–Diffusion im ganzen Kanalvolumen mit
+  u(y, z), Spots als Polygone, BiCGSTAB mit LU-Vorkonditionierer), `chipsim.channel_volume` für
+  einen Kanal des Chiplayouts; Testfall T35. Z4 abgeschlossen.
+
 - Z4, Teil 1: `bindoptix.continuum` (Konvektion–Diffusion im Längsschnitt des Kanals, mehrere
   Spezies, kompetitive Langmuir-Kinetik auf Spotbereichen, implizites Euler-Verfahren, exakte
   Massenbilanz, stationäre Lösung für lineare Oberflächensenken), `DuctFlow.width_averaged_velocity_um_s`;

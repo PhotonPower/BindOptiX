@@ -38,6 +38,7 @@ Status: ✅ umgesetzt und grün, ◐ teilweise, ○ geplant. Sollwerte nie aus d
 | T32 | Strömung im Rechteckkanal: Durchfluss aus der Reihe, Grenzfall breiter Kanal (ebene Poiseuille-Strömung), Wandscherung, Haftbedingung | bruus2008, Quadratur | Z3 | ✅ `tests/test_transport.py` |
 | T33 | Chip und Partikel: Sensor- ↔ Kanalsystem (Rundreise), Spots der Gridreihen im Kanalsystem, beschnittene Spotflächen = Überdeckung, Schwerkraft gedreht, Lauf über das Layout = direkter Lauf, Fänge je Gridspot | analytisch; Gleichheit mit dem direkten Lauf | Z3 | ✅ `tests/test_chipsim.py` |
 | T34 | Wandhydrodynamik: λ⊥ gegen Brenners exakte Reihe (0,05 ≤ h/a ≤ 10, 2 %), Grenzwerte und Ableitung, λ∥ nach Faxén, Boltzmann-Gleichgewicht mit ortsabhängigem D (Itô-Drift), gebremste Annäherung an den Boden | brenner1961 (Reihe im Test), bevan2000, Quadratur | Z3 | ✅ `tests/test_wall.py` |
+| T35 | Kontinuum im Kanalvolumen (3D): quer gleichförmiger Fall = 2D-Lösung × Breite (1e−10), absorbierender Spot im Rechteckkanal gegen lokale Lévêque-Lösung mit der Wandscherung γ̇(y) (4 %), Massenbilanz und Symmetrie mit zwei Spezies, Spots des Chiplayouts als Reaktionsflächen | T12, Lévêque, Bilanz | Z4 | ✅ `tests/test_continuum3d.py` |
 
 T3–T5 prüfen exportierte Karten aus hp-FEM bzw. CliffordBem und warten auf deren Export
 (`docs/vorschlaege/export-antwortkarte.md`). Datenmodell, Interpolation, Ausbeute und Format sind
