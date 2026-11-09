@@ -136,6 +136,10 @@ class RunResult:
     steps: int = 0
     t_s: float = 0.0
     start_times_s: FloatArray = field(default_factory=lambda: np.zeros(0))
+    visit_entry_s: FloatArray = field(default_factory=lambda: np.zeros((0, 0)))
+    visit_time_s: FloatArray = field(default_factory=lambda: np.zeros((0, 0)))
+    visit_off_floor_s: FloatArray = field(default_factory=lambda: np.zeros((0, 0)))
+    off_floor_s: FloatArray = field(default_factory=lambda: np.zeros(0))
 
     def count(self, state: int) -> int:
         return int(np.count_nonzero(self.state == state))
@@ -169,6 +173,7 @@ def run(
     snapshot_times_s: tuple[float, ...] = (),
     resume: RunResult | None = None,
     start_times_s: ArrayLike | None = None,
+    record_visits: bool = False,
 ) -> RunResult:
     """Simulate cells from ``start_um`` (N, 3) for ``duration_s`` with time step ``dt_s``.
 
@@ -177,7 +182,9 @@ def run(
     time. ``resume`` continues a previous run (its positions, states, orientations, ids, clock
     and step counter; ``start_um`` and ``ids`` are then ignored), e.g. with another model for
     the next phase of a protocol. ``start_times_s`` lets cells enter later: they wait at their
-    start position until then (continuous injection).
+    start position until then (continuous injection). ``record_visits`` records for every cell
+    and spot the first entry time, the time spent on the spot and the floor time off the spots
+    before that entry (trajectory library for Z10; meaningful with capture rates 0).
     """
     if not (dt_s > 0.0 and duration_s >= 0.0):
         raise ValueError("dt_s must be positive and duration_s non-negative")
@@ -230,6 +237,13 @@ def run(
     snaps: dict[float, FloatArray] = {}
     pending = sorted(snapshot_times_s)
     n_steps = int(math.ceil(duration_s / dt_s - 1e-9))
+    ns = len(model.spots)
+    if resume is not None and resume.visit_entry_s.shape == (n, ns):
+        v_entry, v_time = resume.visit_entry_s.copy(), resume.visit_time_s.copy()
+        v_off, off_floor = resume.visit_off_floor_s.copy(), resume.off_floor_s.copy()
+    else:
+        v_entry, v_time = np.full((n, ns), math.nan), np.zeros((n, ns))
+        v_off, off_floor = np.full((n, ns), math.nan), np.zeros(n)
 
     for k_step in range(1, n_steps + 1):
         step = step0 + k_step
@@ -299,6 +313,14 @@ def run(
                 inside = (which < 0) & s.contains(p[:, 0], p[:, 1])
                 which[inside] = k
                 r[inside] = rates[k]
+            if record_visits:
+                off_floor[on[which < 0]] += dt_s
+                ins = np.flatnonzero(which >= 0)
+                pi, si = on[ins], which[ins]
+                first = np.isnan(v_entry[pi, si])
+                v_entry[pi[first], si[first]] = t
+                v_off[pi[first], si[first]] = off_floor[pi[first]]
+                v_time[pi, si] += dt_s
             prob = np.where(np.isinf(r), 1.0, -np.expm1(-r * dt_s))
             caught = rng.uniform(seed, ids_o, step, 22) < prob
             spec = caught & (which >= 0)
@@ -325,7 +347,20 @@ def run(
             snaps[pending.pop(0)] = x.copy()
 
     return RunResult(
-        x, state, spot, t_event, snaps, e, pid, step0 + n_steps, t0 + n_steps * dt_s, t_start
+        x,
+        state,
+        spot,
+        t_event,
+        snaps,
+        e,
+        pid,
+        step0 + n_steps,
+        t0 + n_steps * dt_s,
+        t_start,
+        v_entry if record_visits else np.zeros((0, 0)),
+        v_time if record_visits else np.zeros((0, 0)),
+        v_off if record_visits else np.zeros((0, 0)),
+        off_floor if record_visits else np.zeros(0),
     )
 
 

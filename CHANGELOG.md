@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Z8: Abschätzung von Erwärmung und optischen Kräften (`docs/abschaetzung-z8.md`); Z8 entfällt bei
+  der jetzigen Anregung.
+- Z10, Teil 1: `bindoptix.classify` (Trajektorienbibliothek aus Läufen mit `record_visits`,
+  Fangwahrscheinlichkeiten für beliebige Bindungsmatrizen, Klassifikator nach der multinomialen
+  Likelihood, Konfusionsmatrix), `run_particles(record_visits=…)`; Testfälle T25, T38; erste
+  Ergebnisse `docs/ergebnisse-z10.md`.
+
 - Z7: `bindoptix.protocol` (Phasen, Einspülplan, Partikel und Kontinuum über Phasen),
   `particles.run` mit `resume` und `start_times_s`, `bindoptix.imaging` (Bildsynthese mit exakter
   Pixelintegration, Ungleichmäßigkeit), `bindoptix.readout` (Differenzbild, Aperturschwelle für eine

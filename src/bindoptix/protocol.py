@@ -67,6 +67,7 @@ def run_particles(
     dt_s: float,
     seed: int,
     id_offset: int = 0,
+    record_visits: bool = False,
 ) -> list[RunResult]:
     """Cells enter at the inlet according to the schedule; one result per phase end.
 
@@ -90,9 +91,20 @@ def run_particles(
     for p in phases:
         model = make_model(p.flow_rate_um3_s)
         if prev is None:
-            prev = run(model, pos, p.duration_s, dt_s, seed, ids=ids, start_times_s=t_in)
+            prev = run(
+                model,
+                pos,
+                p.duration_s,
+                dt_s,
+                seed,
+                ids=ids,
+                start_times_s=t_in,
+                record_visits=record_visits,
+            )
         else:
-            prev = run(model, None, p.duration_s, dt_s, seed, resume=prev)
+            prev = run(
+                model, None, p.duration_s, dt_s, seed, resume=prev, record_visits=record_visits
+            )
         results.append(prev)
     return results
 
