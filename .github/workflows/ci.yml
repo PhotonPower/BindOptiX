@@ -19,6 +19,16 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
+      - uses: actions/cache@v4
+        with:
+          path: wheelhouse
+          key: nurbforge-v0.6.0-${{ runner.os }}-py${{ matrix.python }}
+      - name: Nurbforge wheel (built once per version and Python, then cached)
+        run: |
+          if ! ls wheelhouse/nurbforge-*.whl > /dev/null 2>&1; then
+            pip wheel --no-deps -w wheelhouse "nurbforge @ git+https://github.com/PhotonPower/Nurbforge@v0.6.0"
+          fi
+      - run: pip install wheelhouse/nurbforge-*.whl
       - run: pip install -r requirements-dev.txt && pip install -e .
       - run: ruff check . && ruff format --check .
       - run: mypy

@@ -105,12 +105,48 @@ etwa 0,05 je mm². Das ist eine harte Vorgabe für das Signalmodell (Z6) und fü
 die Sammeleffizienz mit dem Ort; die Antwortkarte (Z2) muss das ganze Feld abdecken, und der
 Feldverlauf wird ein Designparameter (Raytatouille).
 
+## Chip mit 5 × 5 Spots und Kanälen ≤ 200 µm
+
+Vorgabe des Maintainers (2026-11-09): 5 × 5 Sensorflächen im Gesichtsfeld, Kanäle höchstens
+200 µm breit. Geometrie in `bindoptix.chip` (Layout `rows`, D15): je Spotreihe ein gerader Kanal,
+Spots 200 × 200 µm, Rastermaß 800 µm, Kanalhöhe 100 µm, Kanallänge 10 mm (alle P). Eine 5 × 5-Matrix
+passt nur mit Rastermaß ≤ 833 µm in den Kreis von 5 mm (äußerste Ecke bei √2 · (2p + s/2)); bei
+1 mm Rastermaß läge sie außerhalb.
+
+| Größe | Wert |
+| --- | --- |
+| Spotfläche gesamt | 1,0 mm² |
+| Kanalboden im Gesichtsfeld | 4,4 mm² |
+| Flüssigkeit über dem Kanalboden im Gesichtsfeld | 0,44 µL |
+| Volumen aller Kanäle (10 mm lang) | 1,0 µL |
+
+**Das ändert die Folgerung aus dem Abschnitt „Gesichtsfeld 5 mm“:** Über dem Gesichtsfeld stehen
+jetzt nur 0,44 µL statt bis zu 20 µL, und eingefangen wird nur auf 1 mm² Spotfläche. Damit gibt es
+zwei Grenzfälle:
+
+| Annahme | wirksame Fläche | Q_max (nominal) | Zeit für 1 µL | für 10 µL |
+| --- | --- | --- | --- | --- |
+| Zellen bleiben, wo sie absinken | Spots, 1 mm² | 1,5 nL/min | 11 h | 109 h |
+| abgesunkene Zellen gleiten am passivierten Boden weiter bis zu einem Spot | Kanalboden, 10 mm² | 15 nL/min | 1,1 h | 11 h |
+
+(klein bis groß: Faktor 3 langsamer bis 4 schneller.)
+
+Ob Legionellen nach dem Absinken am Boden mit der Strömung weitergleiten und an einem passenden
+Spot binden (Wandbewegung einer Kugel in Scherströmung: goldman1967), entscheidet über einen
+Faktor 10 und ist die wichtigste offene Frage für Z3 und für die Messungen (D10). Gleiten die Zellen,
+wirkt die ganze Kanallänge stromauf als Absetzstrecke; das Konzentrat sollte dann bei rund 1 µL
+liegen (Faktor 10⁵ aus 100 mL).
+
+**Klassifikation:** Im Layout `rows` trifft eine Zelle höchstens die fünf Spots ihrer Reihe. Für
+25 Subtypen müsste jede Zelle alle Aptamere passieren können: ein Mäander durch alle 25 Spots,
+oder dieselben Aptamere in jeder Reihe in anderer Reihenfolge (D15).
+
 ## Folgerungen
 
-1. **Phase 1 (vorkonzentriert, D12):** Mit 5 mm Gesichtsfeld genügt Sedimentation im Stillstand,
-   wenn das Konzentrat höchstens rund 10 µL hat (Kammer 0,5 mm, nominal 5 h) bzw. 2 µL für etwa
-   1 h. Aktive Kräfte (Z8) sind dann nicht nötig. Die Kette lautet: 100 mL → ≤ 10 µL
-   (Faktor ≥ 10⁴), Zeit bis zum Ergebnis einige Stunden statt Tagen wie im Kulturverfahren.
+1. **Phase 1 (vorkonzentriert, D12):** Mit 5 × 5 Spots in Kanälen ≤ 200 µm braucht es ein
+   Konzentrat von rund 1 µL (Faktor 10⁵ aus 100 mL) und Durchfluss von etwa 15 nL/min, wenn
+   abgesunkene Zellen am Boden bis zu den Spots gleiten; sonst zehnmal langsamer. Ob aktive Kräfte
+   (Z8) nötig sind, hängt an dieser Frage. (Ältere Fassung ohne Kanäle: Konzentrat ≤ 10 µL.)
 2. **Phase 2 (Leitungswasser direkt, D12):** Überströmung scheidet aus (Szenario A, B). Möglich ist
    nur Einfang beim Durchströmen (D) oder eine vorgeschaltete Konzentrierung im Gerät.
 3. **Motilität** kann den Einfang um Größenordnungen verbessern, wenn die Zellen motil sind und

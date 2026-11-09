@@ -9,7 +9,7 @@ description = "Time, transport and biology layer for optical biosensors"
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.10"
-dependencies = ["numpy>=1.24", "scipy>=1.10"]
+dependencies = ["numpy>=1.24", "scipy>=1.10", "nurbforge>=0.6.0"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -38,3 +38,8 @@ files = ["src", "tests"]
 [[tool.mypy.overrides]]
 module = ["scipy", "scipy.*"]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# Nurbforge re-exports its compiled core without __all__; its API is untyped (Any) here.
+module = ["nurbforge", "nurbforge.*"]
+implicit_reexport = true
