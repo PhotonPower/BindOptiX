@@ -20,10 +20,10 @@ Status: ✅ umgesetzt und grün, ◐ teilweise, ○ geplant. Sollwerte nie aus d
 | T14 | Massenerhaltung (Volumen + Oberfläche + Auslass), zwei konkurrierende Spezies, Belegung ≤ Γ_max auch bei sehr langen Schritten (Teilschritte) | Bilanz bis 1e−10 relativ | Z4 | ✅ `tests/test_continuum.py` |
 | T15 | Langmuir und kompetitive Langmuir-Kinetik mit Gewichten α: Zeitverlauf einer Spezies analytisch, Gleichgewicht in geschlossener Form, Zeitverlauf mehrerer Spezies gegen ODE-Löser, irreversible Bindung | analytisch, `scipy.integrate.solve_ivp` | Z5 | ✅ `tests/test_binding.py` |
 | T16 | Rezeptorzustände (Port B): Anteile je Spot summieren sich zu 1, liegen in [0, 1], erster Zustand „free“; Dateiformat-Rundreise mit Zellereignissen | Grenzfall, Rundreise | Z5 | ✅ `tests/test_binding.py` |
-| T17 | Einzelner Emitter im homogenen Medium: Rate = Anregung · q₀ · Sammeleffizienz | analytisch | Z6 | ○ |
-| T18 | Modifizierte Quantenausbeute aus den Tensoren | Formel mit γ_nr⁰ = γ_r⁰(1 − q₀)/q₀, unabhängige Rechnung | Z6 | ○ |
-| T19 | Bleichen: Monoexponentiell bei konstanter Anregung | analytisch | Z6 | ○ |
-| T20 | Kamera: Mittel und Varianz der Zählrate | Poisson plus Gauß-Leserauschen | Z6 | ○ |
+| T17 | Einzelner Emitter im homogenen Medium: Rate = σ I/(hν) · q₀ · η; Orientierungsfaktor 3 für Dipol parallel zur Polarisation | analytisch, σ = 3,82·10⁻²¹ cm² · ε | Z6 | ✅ `tests/test_signal.py` |
+| T18 | Modifizierte Quantenausbeute aus den Tensoren | Formel mit γ_nr⁰ = γ_r⁰(1 − q₀)/q₀, unabhängige Rechnung | Z6 | ✅ `tests/test_ports.py`, `tests/test_signal.py` |
+| T19 | Bleichen: monoexponentiell bei konstanter Anregung, Photonen im Zeitfenster | analytisch, Quadratur | Z6 | ✅ `tests/test_signal.py` |
+| T20 | Kamera: Mittel und Varianz; Überschreitungswahrscheinlichkeit Poisson + Gauß gegen Monte Carlo; Schwelle für eine Fehlalarmdichte | Poisson plus Gauß-Leserauschen, Monte Carlo | Z6 | ✅ `tests/test_signal.py` |
 | T21 | Spot-Erkennung auf synthetischen Bildern mit bekannter Wahrheit | Trefferquote, Fehlalarme gegen Vorgabe | Z7 | ○ |
 | T22 | Protokoll: Waschschritt entfernt reversibel Gebundenes nach k_off | analytisch | Z7 | ○ |
 | T23 | Erwärmung: Bilanz ∫q dV = absorbierte Leistung aus F | Energieerhaltung | Z8 | ○ |

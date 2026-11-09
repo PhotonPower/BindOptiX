@@ -22,6 +22,7 @@ Die Wandscherrate folgt aus Q und dem Kanal (`bindoptix.flow.DuctFlow.floor_shea
 | M3 | Gleitfaktor s (D17) | abgesunkene Zellen auf passiviertem Boden, Wandscherung 0,05–1 s⁻¹ | Geschwindigkeit am Boden gegen a · ∂u/∂z → s; prüfen, ob Zellen gleichmäßig gleiten oder ruckweise | 50 Zellen je Scherrate |
 | M4 | unspezifische Haftung k_ns (D17) | wie M3, über 30–60 min | Anteil der Zellen, die liegen bleiben, über der Zeit → Rate; Vergleich verschiedener Passivierungen | 200 Zellen je Passivierung |
 | M5 | Fangrate k_cap je Spot, Kreuzreaktivität (D3, D13, D17) | gleitende Zellen überqueren einen Aptamer-Spot; passender und nicht passender Stamm | Fangwahrscheinlichkeit P = 1 − exp(−k_cap · T), T = Spotlänge / Gleitgeschwindigkeit; T über die Scherrate variieren → k_cap und seine Scherabhängigkeit | 100 Überquerungen je Paar |
+| M7 | Signal je Zelle und Restleuchten (D18) | Spot ohne Zellen und mit einzelnen gefangenen Zellen abbilden, Belichtungsreihe | Restleuchten je µm² (ausgeschaltete Aptamere), Photonen je Zelle → eingeschaltete Aptamere je Zelle; Ungleichmäßigkeit des Spots | 50 Zellen, 5 Spots |
 | M6 | Rückhalt η der Vorkonzentrierung (D12) | Membranfiltration dotierter Proben, Resuspension auf ≈ 1 µL | gefundene / eingesetzte Zellen (Kultur, Mikroskopie oder qPCR) | 5 Proben je Konzentration |
 
 Größenordnungen aus dem Modell: Bei 5 nL/min ist die Wandscherung in Kanalmitte etwa 0,34 s⁻¹
