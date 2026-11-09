@@ -15,9 +15,9 @@ Status: ✅ umgesetzt und grün, ◐ teilweise, ○ geplant. Sollwerte nie aus d
 | T9 | Run-and-Tumble: effektive Diffusion v²τ/(3(1−α)) | Lovely–Dahlquist 1975 | Z3 | ✅ `tests/test_transport.py` |
 | T10 | Einfang an absorbierender Wand aus homogener Anfangsverteilung: Γ(t) = 2c₀√(Dt/π); Wandkontakt auch zwischen den Schritten (Brownsche Brücke) | Smoluchowski | Z3 | ✅ `tests/test_transport.py` |
 | T11 | Determinismus: gleicher Seed, gleiche Ergebnisse, unabhängig von der Aufteilung in Pakete (Zufallszahlen bitgleich, Gleitkomma bis auf Rundung wegen SIMD-Pfaden von NumPy, Zustände gleich) | Rundreise | Z3 | ✅ `tests/test_transport.py` |
-| T12 | Transportbegrenzter Einfang im Kanal | Lévêque-Lösung (Graetz-Problem) | Z4 | ○ |
-| T13 | Übergang reaktions- zu transportbegrenzt über die Damköhler-Zahl | Squires, Messinger, Manalis 2008 | Z4 | ○ |
-| T14 | Massenerhaltung (Volumen + Oberfläche + Auslass) | Bilanz bis 1e−10 relativ | Z4 | ○ |
+| T12 | Transportbegrenzter Einfang im Kanal: lineare Scherung gegen Lévêque (1 %); Parabelprofil etwa 2 % darunter | Lévêque-Lösung, Gesamtfluss 0,8075 c₀ (D²γ̇L²)^(1/3) | Z4 | ✅ `tests/test_continuum.py` |
+| T13 | Übergang reaktions- zu transportbegrenzt über die Damköhler-Zahl: Grenzfälle (2 %, 4 %), Da = 1 gegen Reihenschaltung J_R/(1 + Da) (15 %); reaktionsbegrenzte Langmuir-Kinetik | squires2008; analytische Langmuir-Lösung | Z4 | ✅ `tests/test_continuum.py` |
+| T14 | Massenerhaltung (Volumen + Oberfläche + Auslass), zwei konkurrierende Spezies, Belegung ≤ Γ_max | Bilanz bis 1e−10 relativ | Z4 | ✅ `tests/test_continuum.py` |
 | T15 | Langmuir und kompetitive Langmuir-Kinetik, Gleichgewicht und Zeitverlauf | analytische Lösungen | Z5 | ○ |
 | T16 | Rezeptorzustände: Anteile summieren sich zu 1; ohne Analyt = Zustand „frei“ | Grenzfall | Z5 | ○ |
 | T17 | Einzelner Emitter im homogenen Medium: Rate = Anregung · q₀ · Sammeleffizienz | analytisch | Z6 | ○ |

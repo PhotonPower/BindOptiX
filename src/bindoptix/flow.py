@@ -109,3 +109,13 @@ class DuctFlow:
         terms = (1.0 / self._n**3 * 2.0 * h / (self._n * math.pi))[:, None] * (1.0 - ratio)
         q = 4.0 * h * h * self.pressure_gradient / math.pi**3 * terms.sum(axis=0)
         return np.asarray(np.where(np.abs(y) <= half_w, q, 0.0), dtype=np.float64)
+
+    def width_averaged_velocity_um_s(self, z_um: ArrayLike) -> FloatArray:
+        """(1/w) ∫ u dy [µm/s], exact termwise (∫ cosh(ky)/cosh(kw/2) dy = (2/k) tanh(kw/2))."""
+        z = np.asarray(z_um, dtype=np.float64).ravel()
+        h, w = self.height_um, self.width_um
+        k = self._n * math.pi / h
+        avg = 1.0 - 2.0 / (k * w) * np.tanh(0.5 * k * w)
+        terms = (avg / self._n**3)[:, None] * np.sin(k[:, None] * z[None, :])
+        u = 4.0 * h * h * self.pressure_gradient / math.pi**3 * terms.sum(axis=0)
+        return np.asarray(np.where((z >= 0.0) & (z <= h), u, 0.0), dtype=np.float64)
