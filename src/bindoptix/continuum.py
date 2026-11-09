@@ -238,8 +238,32 @@ class ChannelSection:
                 gam[m] = koff / den
         return beta, gam
 
-    def step(self, state: ContinuumState, dt_s: float, c_in: Sequence[float]) -> ContinuumState:
-        """One implicit Euler step with inlet concentrations ``c_in`` (one per species)."""
+    def step(
+        self, state: ContinuumState, dt_s: float, c_in: Sequence[float], max_halvings: int = 30
+    ) -> ContinuumState:
+        """Implicit Euler over ``dt_s`` with inlet concentrations ``c_in`` (one per species).
+
+        The free sites are taken from the start of a step, so a long step can bind more than
+        the free sites; such a step is repeated as two half steps (each conservative) until no
+        site capacity is exceeded.
+        """
+        new = self._step_once(state, dt_s, c_in)
+        if max_halvings <= 0 or not self._overfilled(new):
+            return new
+        half = self.step(state, 0.5 * dt_s, c_in, max_halvings - 1)
+        return self.step(half, 0.5 * dt_s, c_in, max_halvings - 1)
+
+    def _overfilled(self, state: ContinuumState) -> bool:
+        for j, r in enumerate(self.regions):
+            m = self.region_of == j
+            used = sum(s.site_weight * state.gamma[q][m] for q, s in enumerate(self.species))
+            if np.any(used > r.sites_per_um2 * (1.0 + 1e-9) + 1e-300):
+                return True
+        return False
+
+    def _step_once(
+        self, state: ContinuumState, dt_s: float, c_in: Sequence[float]
+    ) -> ContinuumState:
         if len(c_in) != len(self.species):
             raise ValueError("one inlet concentration per species")
         theta = self._free_sites(state.gamma)

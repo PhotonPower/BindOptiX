@@ -113,7 +113,7 @@ class ChannelVolume:
         )
         self._floor = self._floor.reshape(self.nx, self.ny)
         self._base = [self._transport_matrix(s.diffusion_um2_s) for s in self.species]
-        self._precond: list[spla.SuperLU | None] = [None] * ns
+        self._precond: dict[tuple[int, float], spla.SuperLU] = {}
 
     def _idx(self, i: ArrayLike, j: ArrayLike, k: ArrayLike) -> NDArray[np.int64]:
         return np.asarray(
@@ -206,19 +206,46 @@ class ChannelVolume:
                 gam[m] = koff / den
         return beta, gam
 
-    def _solve(self, q: int, a: sp.csr_matrix, rhs: FloatArray, x0: FloatArray) -> FloatArray:
-        if self._precond[q] is None:
-            self._precond[q] = spla.splu(a.tocsc())
-            return np.asarray(self._precond[q].solve(rhs), dtype=np.float64)  # type: ignore[union-attr]
-        lu = self._precond[q]
-        m = spla.LinearOperator(a.shape, matvec=lambda v: lu.solve(v))  # type: ignore[union-attr]
+    def _solve(
+        self, q: int, dt_s: float, a: sp.csr_matrix, rhs: FloatArray, x0: FloatArray
+    ) -> FloatArray:
+        key = (q, dt_s)
+        if key not in self._precond:
+            self._precond[key] = spla.splu(a.tocsc())
+            return np.asarray(self._precond[key].solve(rhs), dtype=np.float64)
+        lu = self._precond[key]
+        m = spla.LinearOperator(a.shape, matvec=lambda v: lu.solve(v))
         x, info = spla.bicgstab(a, rhs, x0=x0, M=m, rtol=1e-13, atol=0.0, maxiter=200)
         if info != 0:
             x = spla.spsolve(a.tocsc(), rhs)
         return np.asarray(x, dtype=np.float64)
 
-    def step(self, state: ContinuumState, dt_s: float, c_in: Sequence[float]) -> ContinuumState:
-        """One implicit Euler step with inlet concentrations ``c_in`` (one per species)."""
+    def step(
+        self, state: ContinuumState, dt_s: float, c_in: Sequence[float], max_halvings: int = 30
+    ) -> ContinuumState:
+        """Implicit Euler over ``dt_s`` with inlet concentrations ``c_in`` (one per species).
+
+        The free sites are taken from the start of a step, so a long step can bind more than
+        the free sites; such a step is repeated as two half steps (each conservative) until no
+        site capacity is exceeded.
+        """
+        new = self._step_once(state, dt_s, c_in)
+        if max_halvings <= 0 or not self._overfilled(new):
+            return new
+        half = self.step(state, 0.5 * dt_s, c_in, max_halvings - 1)
+        return self.step(half, 0.5 * dt_s, c_in, max_halvings - 1)
+
+    def _overfilled(self, state: ContinuumState) -> bool:
+        for j, r in enumerate(self.regions):
+            m = self.region_of == j
+            used = sum(s.site_weight * state.gamma[q][m] for q, s in enumerate(self.species))
+            if np.any(used > r.sites_per_um2 * (1.0 + 1e-9) + 1e-300):
+                return True
+        return False
+
+    def _step_once(
+        self, state: ContinuumState, dt_s: float, c_in: Sequence[float]
+    ) -> ContinuumState:
         if len(c_in) != len(self.species):
             raise ValueError("one inlet concentration per species")
         theta = self._free_sites(state.gamma)
@@ -242,7 +269,7 @@ class ChannelVolume:
             rhs = vol / dt_s * state.c[q].ravel()
             rhs[floor] += src
             rhs[inlet] += inflow_rate * c_in[q]
-            c = self._solve(q, a, rhs, state.c[q].ravel())
+            c = self._solve(q, dt_s, a, rhs, state.c[q].ravel())
             cq = c.reshape(self.nx, self.ny, self.nz)
             c_new[q] = cq
             g_new[q] = (state.gamma[q] + dt_s * beta * cq[:, :, 0]) / (1.0 + dt_s * gam)

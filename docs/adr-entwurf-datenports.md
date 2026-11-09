@@ -58,7 +58,9 @@ Biosensor braucht zusätzlich die Gegenrichtung und die Zeit:
 - **Kopplung an N:** nur für molekulare Schichten; lateral gemittelt wie in K4. Für Zellen gilt N
   nicht (Mikrometerobjekte, keine Schicht). Zellen als Streukörper gehen später über Geometrie an
   CliffordBem oder SpeckleBem, nicht über diesen ADR.
-- **Erzeuger:** BindOptiX.
+- **Erzeuger:** BindOptiX. Umgesetzt (Z5, `bindoptix.binding.Occupancy`) zunächst als Mittel je Spot
+  über der Zeit plus Ereignisliste; ein Flächengitter folgt, wenn Z6 die Verteilung innerhalb der Spots
+  braucht.
 
 ### 3. Antwortkarte als Tabelle der Darstellung M (keine neue Darstellung)
 

@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Z5: `bindoptix.binding` (kompetitive Langmuir-Kinetik exakt über die Matrixexponentielle,
+  Gleichgewicht in geschlossener Form, Einfang ganzer Zellen mit Avidität, Port B `Occupancy`),
+  zeitabhängige Fangraten in `ChannelModel` (`spot_rates_fn`), Kopplung Fouling → Einfang
+  `chipsim.run_channel_coupled` mit Affinität je Spot; Testfälle T15, T16, T36.
+- Korrektur Z4: Lange Zeitschritte konnten mehr binden als freie Plätze vorhanden waren (freie
+  Plätze aus dem Vorschritt); `step` teilt solche Schritte jetzt konservativ, bis die Kapazität
+  eingehalten ist (T14 erweitert).
+
 - Z4, Teil 2: `bindoptix.continuum3d.ChannelVolume` (Konvektion–Diffusion im ganzen Kanalvolumen mit
   u(y, z), Spots als Polygone, BiCGSTAB mit LU-Vorkonditionierer), `chipsim.channel_volume` für
   einen Kanal des Chiplayouts; Testfall T35. Z4 abgeschlossen.

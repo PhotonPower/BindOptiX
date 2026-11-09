@@ -17,9 +17,9 @@ Status: ✅ umgesetzt und grün, ◐ teilweise, ○ geplant. Sollwerte nie aus d
 | T11 | Determinismus: gleicher Seed, gleiche Ergebnisse, unabhängig von der Aufteilung in Pakete (Zufallszahlen bitgleich, Gleitkomma bis auf Rundung wegen SIMD-Pfaden von NumPy, Zustände gleich) | Rundreise | Z3 | ✅ `tests/test_transport.py` |
 | T12 | Transportbegrenzter Einfang im Kanal: lineare Scherung gegen Lévêque (1 %); Parabelprofil etwa 2 % darunter | Lévêque-Lösung, Gesamtfluss 0,8075 c₀ (D²γ̇L²)^(1/3) | Z4 | ✅ `tests/test_continuum.py` |
 | T13 | Übergang reaktions- zu transportbegrenzt über die Damköhler-Zahl: Grenzfälle (2 %, 4 %), Da = 1 gegen Reihenschaltung J_R/(1 + Da) (15 %); reaktionsbegrenzte Langmuir-Kinetik | squires2008; analytische Langmuir-Lösung | Z4 | ✅ `tests/test_continuum.py` |
-| T14 | Massenerhaltung (Volumen + Oberfläche + Auslass), zwei konkurrierende Spezies, Belegung ≤ Γ_max | Bilanz bis 1e−10 relativ | Z4 | ✅ `tests/test_continuum.py` |
-| T15 | Langmuir und kompetitive Langmuir-Kinetik, Gleichgewicht und Zeitverlauf | analytische Lösungen | Z5 | ○ |
-| T16 | Rezeptorzustände: Anteile summieren sich zu 1; ohne Analyt = Zustand „frei“ | Grenzfall | Z5 | ○ |
+| T14 | Massenerhaltung (Volumen + Oberfläche + Auslass), zwei konkurrierende Spezies, Belegung ≤ Γ_max auch bei sehr langen Schritten (Teilschritte) | Bilanz bis 1e−10 relativ | Z4 | ✅ `tests/test_continuum.py` |
+| T15 | Langmuir und kompetitive Langmuir-Kinetik mit Gewichten α: Zeitverlauf einer Spezies analytisch, Gleichgewicht in geschlossener Form, Zeitverlauf mehrerer Spezies gegen ODE-Löser, irreversible Bindung | analytisch, `scipy.integrate.solve_ivp` | Z5 | ✅ `tests/test_binding.py` |
+| T16 | Rezeptorzustände (Port B): Anteile je Spot summieren sich zu 1, liegen in [0, 1], erster Zustand „free“; Dateiformat-Rundreise mit Zellereignissen | Grenzfall, Rundreise | Z5 | ✅ `tests/test_binding.py` |
 | T17 | Einzelner Emitter im homogenen Medium: Rate = Anregung · q₀ · Sammeleffizienz | analytisch | Z6 | ○ |
 | T18 | Modifizierte Quantenausbeute aus den Tensoren | Formel mit γ_nr⁰ = γ_r⁰(1 − q₀)/q₀, unabhängige Rechnung | Z6 | ○ |
 | T19 | Bleichen: Monoexponentiell bei konstanter Anregung | analytisch | Z6 | ○ |
@@ -39,6 +39,7 @@ Status: ✅ umgesetzt und grün, ◐ teilweise, ○ geplant. Sollwerte nie aus d
 | T33 | Chip und Partikel: Sensor- ↔ Kanalsystem (Rundreise), Spots der Gridreihen im Kanalsystem, beschnittene Spotflächen = Überdeckung, Schwerkraft gedreht, Lauf über das Layout = direkter Lauf, Fänge je Gridspot | analytisch; Gleichheit mit dem direkten Lauf | Z3 | ✅ `tests/test_chipsim.py` |
 | T34 | Wandhydrodynamik: λ⊥ gegen Brenners exakte Reihe (0,05 ≤ h/a ≤ 10, 2 %), Grenzwerte und Ableitung, λ∥ nach Faxén, Boltzmann-Gleichgewicht mit ortsabhängigem D (Itô-Drift), gebremste Annäherung an den Boden | brenner1961 (Reihe im Test), bevan2000, Quadratur | Z3 | ✅ `tests/test_wall.py` |
 | T35 | Kontinuum im Kanalvolumen (3D): quer gleichförmiger Fall = 2D-Lösung × Breite (1e−10), absorbierender Spot im Rechteckkanal gegen lokale Lévêque-Lösung mit der Wandscherung γ̇(y) (4 %), Massenbilanz und Symmetrie mit zwei Spezies, Spots des Chiplayouts als Reaktionsflächen | T12, Lévêque, Bilanz | Z4 | ✅ `tests/test_continuum3d.py` |
+| T36 | Kopplung Fouling → Einfang: ohne Fouling identisch zum Lauf mit konstanter Fangrate; mit Fouling weniger Fänge, keine Fänge nach Füllung der Spots, Füllfront wandert stromab, Port B konsistent; Affinität je Spot (Zeile der Bindungsmatrix) | Gleichheit mit dem ungekoppelten Lauf, Grenzfälle | Z5 | ✅ `tests/test_binding.py` |
 
 T3–T5 prüfen exportierte Karten aus hp-FEM bzw. CliffordBem und warten auf deren Export
 (`docs/vorschlaege/export-antwortkarte.md`). Datenmodell, Interpolation, Ausbeute und Format sind
