@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Z1, Teil 2: `bindoptix.chip` mit 5 × 5 Spots im Gesichtsfeld Ø 5 mm, Kanäle ≤ 200 µm, Körper
+  über Nurbforge, STEP-Export; Testfall T29; Abschätzung zum Einfang für dieses Layout; D15, D16.
+
 - Z1, Teil 1: Python-Paket `bindoptix` mit CI (ruff, mypy strict, pytest), `bindoptix.units`
   (Teilchenzahlen, KBE, k_on), `bindoptix.frames` (Pose Sensorsystem → RTT-System mit
   Spiegelregel, polare und axiale Vektoren, Tensoren; Einbaulage mit Schwerkraftrichtung);

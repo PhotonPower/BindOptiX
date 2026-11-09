@@ -32,3 +32,4 @@ Status: ✅ umgesetzt und grün, ◐ teilweise, ○ geplant. Sollwerte nie aus d
 | T26 | Optimierer findet das bekannte Optimum eines Spielproblems | analytisch | Z10 | ○ |
 | T27 | Sinkgeschwindigkeit und Diffusion eines Stäbchens (Rotationsellipsoid, Orientierung gemittelt) | Perrin, Happel–Brenner; Kugelgrenzfall Stokes und Stokes–Einstein | Z3 | ○ |
 | T28 | Einfang im laminaren Durchfluss über einer Fläche: Anteil min(1, v_s A/Q), unabhängig vom Profil | Hazen, analytisch | Z3 | ○ |
+| T29 | Chipgeometrie: Volumen der Kanäle (Nurbforge) gegen l·b·h, Spotflächen, Kanalboden im Gesichtsfeld gegen numerische Quadratur der Sehnenlänge, Spots in ihrem Kanal, STEP-Rundreise, ungültige Layouts | analytisch, `scipy.integrate.quad` | Z1 | ✅ `tests/test_chip.py` |

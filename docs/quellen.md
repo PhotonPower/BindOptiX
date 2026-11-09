@@ -23,3 +23,4 @@ prüfen).
 | saad2020 | M. Saad, D. Chinerman, M. Tabrizian, S. P. Faucher, „Identification of two aptamers binding to Legionella pneumophila with high affinity and specificity“, Sci. Rep. 10 (2020) 9145 | Z | D3: Aptamere |
 | xiong2022 | L. Xiong et al., „DNA aptamers specific for Legionella pneumophila: systematic evolution of ligands by exponential enrichment in whole bacterial cells“, Biotechnol. Lett. (2022) | Z | D3: Aptamere |
 | shaukat2024 | A. Shaukat et al., „Cell-SELEX for aptamer discovery and its utilization in constructing electrochemical biosensor for rapid and highly sensitive detection of Legionella pneumophila serogroup 1“, Sci. Rep. 14 (2024), doi:10.1038/s41598-024-65075-4 | Z | D3: Aptamere, Serogruppe 1 |
+| goldman1967 | A. J. Goldman, R. G. Cox, H. Brenner, „Slow viscous motion of a sphere parallel to a plane wall – II Couette flow“, Chem. Eng. Sci. 22 (1967) 653–660 | Z | Abschätzung: Gleiten abgesunkener Zellen am Boden (Z3) |
