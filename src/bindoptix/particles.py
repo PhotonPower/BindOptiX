@@ -24,6 +24,7 @@ particle ids, not on batching (T11).
 from __future__ import annotations
 
 import math
+from collections.abc import Callable
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -86,6 +87,8 @@ class ChannelModel:
             (``bindoptix.wall``); z is then the gap between cell surface and floor.
         contact_gap_um: gap at which a cell counts as touching the floor (P; required > 0 with
             wall hydrodynamics, because λ⊥ → 0 at the wall).
+        spot_rates_fn: optional capture rates per spot as a function of time [1/s]; overrides
+            the constant rates of the spots (coupling to fouling, Z5).
     """
 
     flow: DuctFlow
@@ -100,6 +103,7 @@ class ChannelModel:
     brownian: bool = True
     wall_hydrodynamics: bool = False
     contact_gap_um: float = 0.0
+    spot_rates_fn: Callable[[float], FloatArray] | None = None
 
     def __post_init__(self) -> None:
         if self.floor not in ("contact", "reflect"):
@@ -235,6 +239,10 @@ def run(
                 state[free[hit]] = FLOOR
             x[free] = q
 
+        if model.spot_rates_fn is not None:
+            rates = np.asarray(model.spot_rates_fn(t), dtype=np.float64)
+            if rates.shape != (len(model.spots),) or np.any(rates < 0.0):
+                raise ValueError("spot_rates_fn must return one non-negative rate per spot")
         on = np.flatnonzero(state == FLOOR)
         if on.size:
             p, ids_o = x[on], pid[on]

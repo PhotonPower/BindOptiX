@@ -144,3 +144,24 @@ def test_width_averaged_profile() -> None:
     z = np.linspace(0, 100, 4001)
     q = np.trapezoid(f.width_averaged_velocity_um_s(z), z) * 200.0
     assert q == pytest.approx(2.5e5, rel=1e-5)
+
+
+def test_t14_long_steps_respect_site_capacity() -> None:
+    # Irreversible, fast binding with steps far beyond the filling time: sub-steps keep
+    # Σ α Γ ≤ Γ_max and the balance exact.
+    reg = ReactiveRegion(100.0, 300.0, 1e3, (5.0, 1.0), (0.0, 0.0))
+    s = ChannelSection(
+        np.linspace(0.0, 400.0, 41),
+        graded_edges(50.0, 12, 0.5),
+        lambda z: 6.0 * 20.0 * z / 50.0 * (1 - z / 50.0),
+        [Species("target", 40.0), Species("albumin", 60.0, site_weight=2.0)],
+        [reg],
+    )
+    st = s.initial_state()
+    for _ in range(5):
+        st = s.step(st, 600.0, (1.0, 5.0))
+    used = st.gamma[0] + 2.0 * st.gamma[1]
+    assert used.max() <= 1e3 * (1 + 1e-9)
+    assert used[s.region_of == 0].min() > 0.99e3
+    dissolved, bound = s.mass(st)
+    np.testing.assert_allclose(st.inflow - st.outflow, dissolved + bound, rtol=1e-10)
