@@ -6,6 +6,8 @@ per µm³, surface coverages per µm². All conversions of the package go throug
 
 from __future__ import annotations
 
+import math
+
 # Exact SI defining constants (SI brochure, 9th edition, 2019).
 AVOGADRO: float = 6.02214076e23
 """Avogadro constant N_A [1/mol]."""
@@ -55,3 +57,24 @@ def kon_molar_to_um3(k_on_per_molar_s: float) -> float:
 def kon_um3_to_molar(k_on_um3_per_s: float) -> float:
     """Association rate constant [µm³/s] per binding site → [1/(M·s)]."""
     return k_on_um3_per_s * AVOGADRO / UM3_PER_LITRE
+
+
+PLANCK: float = 6.62607015e-34
+"""Planck constant h [J·s] (exact)."""
+SPEED_OF_LIGHT: float = 299792458.0
+"""Speed of light in vacuum c [m/s] (exact)."""
+VACUUM_PERMITTIVITY: float = 8.8541878128e-12
+"""Electric constant ε₀ [F/m] (CODATA 2018)."""
+
+
+def extinction_to_cross_section_cm2(epsilon_per_molar_cm: float) -> float:
+    """Molar decadic extinction coefficient [1/(M·cm)] → absorption cross-section [cm²].
+
+    σ = ln(10) · ε / N_A · 1000 cm³/L = 3.8235·10⁻²¹ cm² · ε.
+    """
+    return math.log(10.0) * epsilon_per_molar_cm * 1000.0 / AVOGADRO
+
+
+def photon_energy_j(wavelength_um: float) -> float:
+    """Photon energy h c / λ [J] for a vacuum wavelength [µm]."""
+    return PLANCK * SPEED_OF_LIGHT / (wavelength_um * 1e-6)

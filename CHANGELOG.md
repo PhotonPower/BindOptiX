@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Z6, Teil 1: `bindoptix.signal` (Farbstoff, Ensembles je Rezeptorzustand, Anregungsrate aus der
+  Feldkarte mit Orientierungsfaktor, Ausbeute und Sammlung aus der Antwortkarte je Stichprobe,
+  Bleichen, Kamera mit Poisson- und Lesefehler, Schwelle für eine Fehlalarmdichte),
+  Platzhalterkarten ohne eigene Optik, Konstanten h, c, ε₀; Testfälle T17–T20; Photonenbudget
+  `docs/ergebnisse-z6.md`; Entscheidung D18, Messung M7.
+
 - Z5: `bindoptix.binding` (kompetitive Langmuir-Kinetik exakt über die Matrixexponentielle,
   Gleichgewicht in geschlossener Form, Einfang ganzer Zellen mit Avidität, Port B `Occupancy`),
   zeitabhängige Fangraten in `ChannelModel` (`spot_rates_fn`), Kopplung Fouling → Einfang
