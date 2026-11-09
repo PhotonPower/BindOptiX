@@ -11,11 +11,12 @@ und Relay-Optik. BindOptiX verbindet diese Karten mit Strömung, Transport (Lang
 Zellen, Kontinuum für Moleküle), Bindungskinetik und Kameramodell und liefert die Zielgrößen:
 Nachweisgrenze, Zeit bis zum Ergebnis, Erkennung der Stämme.
 
-**Erster Anwendungsfall:** Fluoreszenz-Biosensor zur Erkennung von Bakterienstämmen
-(Aptamere mit Fluorophor auf Gold/Graphen, optional plasmonische Kavitäten, Glassubstrat,
+**Erster Anwendungsfall:** Fluoreszenz-Biosensor für Legionellen in Wasser, gestuft bis zu
+25 Subtypen (Aptamere mit Fluorophor auf Gold, später Graphit, optional plasmonische Kavitäten, Glassubstrat,
 2PP-gedruckte SIL mit Spiegelrand, Relay-Optik, Kamera).
 
-**Stand:** Spezifikation (Stufe Z0, Entwurf). Siehe [docs/roadmap.md](docs/roadmap.md).
+**Stand:** Spezifikation abgenommen (Z0); Abschätzung zum Einfang in
+[docs/abschaetzung-einfang.md](docs/abschaetzung-einfang.md). Siehe [docs/roadmap.md](docs/roadmap.md).
 
 ## Dokumentation
 
