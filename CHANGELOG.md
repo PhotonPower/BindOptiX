@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Z3, Teil 1: `bindoptix.cells` (Stäbchen als Ellipsoid, Sedimentation, Diffusion, Run-and-Tumble),
+  `bindoptix.flow` (Poiseuille-Strömung im Rechteckkanal, Wandscherung, Säulenfluss),
+  `bindoptix.rng` (zählerbasierte Zufallszahlen), `bindoptix.particles` (Langevin mit Brownscher
+  Brücke am Boden, Gleiten, Spots, unspezifische Haftung); Testfälle T7–T11, T27, T28, T31, T32;
+  erste Ergebnisse `docs/ergebnisse-z3.md`; Entscheidung D17.
+
 - Z2, Teil 1: `bindoptix.ports` mit `EmitterResponseTable` (Tensoren A_tot, A_rad, A_det,d,
   Prüfung auf Symmetrie, Semidefinitheit und A_det ≤ A_rad ≤ A_tot, Quantenausbeute,
   Sammelanteil) und `FieldMap`/`FieldMapStack` (Port F, geschachtelte Gitter, Leistungsskalierung,

@@ -141,6 +141,10 @@ liegen (Faktor 10⁵ aus 100 mL).
 25 Subtypen müsste jede Zelle alle Aptamere passieren können: ein Mäander durch alle 25 Spots,
 oder dieselben Aptamere in jeder Reihe in anderer Reihenfolge (D15).
 
+> **Nachtrag aus Z3 (`docs/ergebnisse-z3.md`):** Gleiten ist mit etwa 1,7 % der mittleren
+> Strömungsgeschwindigkeit langsam. Statt Faktor 10 bringt es im Modell Faktor 3 bis 9, und pro Kanal
+> erreichen bei der besten Flussrate (2–5 nL/min) höchstens rund 30 % der Zellen einen Spot.
+
 ## Folgerungen
 
 1. **Phase 1 (vorkonzentriert, D12):** Mit 5 × 5 Spots in Kanälen ≤ 200 µm braucht es ein
