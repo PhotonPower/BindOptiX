@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Z2, Teil 1: `bindoptix.ports` mit `EmitterResponseTable` (Tensoren A_tot, A_rad, A_det,d,
+  Prüfung auf Symmetrie, Semidefinitheit und A_det ≤ A_rad ≤ A_tot, Quantenausbeute,
+  Sammelanteil) und `FieldMap`/`FieldMapStack` (Port F, geschachtelte Gitter, Leistungsskalierung,
+  Schutz nichtlinearer Karten), trilineare Interpolation; `bindoptix.results` (Hülle
+  `raytatouille-result`); Testfall T6; Erweiterungsvorschlag an hp-FEM und CliffordBem.
+
 - Chipgeometrie für ein schräg stehendes Grid (`grid_angle_rad`) und frei liegende gerade Kanäle
   (`Channel`), Überdeckung Spot/Kanal (`coverage`, `uncovered_spots`), Querpositionen der Spots;
   Testfall T30.
