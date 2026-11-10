@@ -9,7 +9,8 @@
 | --- | --- |
 | Python ≥ 3.10, NumPy, SciPy | Referenzimplementierung, Numerik |
 | pytest, ruff, mypy | Entwicklung (`requirements-dev.txt`) |
-| CMake, C++20-Compiler, CUDA ≥ 12.6 | ab dem C++/CUDA-Kern (Z11), wie BWPM |
+| scikit-build-core, pybind11, CMake ≥ 3.24, C++20-Compiler, OpenMP (optional) | Kern `bindoptix._core` (Z11), Aufbau wie BWPM |
+| CUDA ≥ 12.6 | CUDA-Backend des Kerns (Z11, nur auf dem großen Rechner, `BINDOPTIX_ENABLE_CUDA=ON`) |
 
 ## Programme des Maintainers (lesend; Erweiterungen als Vorschlag)
 

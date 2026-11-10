@@ -12,13 +12,19 @@ das Signal auf der Kamera, gekoppelt an die Optik über vorab gerechnete Karten 
 
 ## Bauen und testen
 
-Ab Stufe Z1 (Paketgerüst folgt):
-
 ```bash
-pip install -r requirements-dev.txt && pip install -e .
+pip install -r requirements-dev.txt && pip install -e .     # mit C++-Kern (CMake ≥ 3.24, C++20)
+pip install -e . -C cmake.define.BINDOPTIX_BUILD_CORE=OFF   # nur Python-Referenz
+pip install -e . -C cmake.define.BINDOPTIX_ENABLE_CUDA=ON   # mit CUDA-Kern (großer Rechner)
 pytest
 ruff check . && ruff format --check . && mypy
 ```
+
+Meldet der Import `GLIBCXX_… not found` (conda-Python mit altem libstdc++), mit
+`-C cmake.define.BINDOPTIX_STATIC_LIBSTDCXX=ON` bauen.
+
+`BINDOPTIX_REQUIRE_CORE=1` bzw. `BINDOPTIX_REQUIRE_CUDA=1` lassen die Tests scheitern statt
+überspringen, wenn der Kern bzw. das CUDA-Backend fehlt.
 
 ## Arbeitsregeln
 

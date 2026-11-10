@@ -42,6 +42,8 @@ Status: ✅ umgesetzt und grün, ◐ teilweise, ○ geplant. Sollwerte nie aus d
 | T36 | Kopplung Fouling → Einfang: ohne Fouling identisch zum Lauf mit konstanter Fangrate; mit Fouling weniger Fänge, keine Fänge nach Füllung der Spots, Füllfront wandert stromab, Port B konsistent; Affinität je Spot (Zeile der Bindungsmatrix) | Gleichheit mit dem ungekoppelten Lauf, Grenzfälle | Z5 | ✅ `tests/test_binding.py` |
 | T37 | Protokollmechanik: Fortsetzen eines Laufs bitgleich zum Durchlauf, Einspülplan, wartende Zellen bewegen sich nicht, Inkubation ohne Strömung ohne Drift | Gleichheit, analytisch | Z7 | ✅ `tests/test_readout.py` |
 | T38 | Trajektorienbibliothek: vorhergesagte Fänge je Spot erklären direkte Läufe mit endlichen Fangraten und unspezifischer Haftung (gleiche Zufallsströme, Poisson-Binomial-Streuung) | direkter Partikellauf | Z10 | ✅ `tests/test_classify.py` |
+| T39 | C++-Kern (CPU) gegen Python-Referenz: Zufallszahlen bitgleich, sechs Modellvarianten (Strömung, Gleiten, Haften, Wandhydrodynamik, Schwimmen, Spiegelboden mit schräger Schwerkraft), Schnappschüsse, Warten, Fortsetzen, Besuchsaufzeichnung, Ratentabelle: Orte auf 1e−9 µm, Zustände gleich | Python-Referenz | Z11 | ✅ `tests/test_core.py` (CI) |
+| T40 | CUDA-Kern gegen CPU-Kern und Referenz; Durchsatz 10⁶ Zellen | CPU-Kern, Referenz | Z11 | ✅ `tests/test_core_cuda.py` (Server herkules3, RTX 6000 Ada, 2026-11-10; nicht in der CI) |
 
 T3–T5 prüfen exportierte Karten aus hp-FEM bzw. CliffordBem und warten auf deren Export
 (`docs/vorschlaege/export-antwortkarte.md`). Datenmodell, Interpolation, Ausbeute und Format sind
