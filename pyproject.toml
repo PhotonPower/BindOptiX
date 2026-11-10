@@ -25,6 +25,9 @@ BINDOPTIX_BUILD_CORE = "ON"
 # CUDA backend on the large machine:
 #   pip install -e . -C cmake.define.BINDOPTIX_ENABLE_CUDA=ON
 BINDOPTIX_ENABLE_CUDA = "OFF"
+# Python from (mini)conda with an older libstdc++ than the compiler ("GLIBCXX_… not found"):
+#   pip install -e . -C cmake.define.BINDOPTIX_STATIC_LIBSTDCXX=ON
+BINDOPTIX_STATIC_LIBSTDCXX = "OFF"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

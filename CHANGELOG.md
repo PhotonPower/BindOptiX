@@ -6,7 +6,9 @@
   mit denselben Gleichungen, derselben Reihenfolge und denselben Zufallszahlen wie die Referenz,
   Fassade `bindoptix.fast.run` (Backends auto/cpu/cuda/python), Build mit scikit-build-core und
   pybind11 wie BWPM, CI baut den Kern und prüft zusätzlich die reine Python-Installation;
-  Testfälle T39 (CI), T40 (CUDA, großer Rechner); `experiments/z11_benchmark.py`; Entscheidung D19.
+  Testfälle T39 (CI), T40 (CUDA, auf dem Server geprüft); `experiments/z11_benchmark.py`;
+  Entscheidung D19; Option `BINDOPTIX_STATIC_LIBSTDCXX` für conda-Pythons; Ergebnisse
+  `docs/ergebnisse-z11.md`.
 
 - Z10, Teil 2: `bindoptix.optimize` (Information je eingespülter Zelle, Tauschsuche für die Anordnung
   der Aptamere, vollständige Suche für kleine Fälle); Testfall T26; Ergebnisse zu Anordnung,

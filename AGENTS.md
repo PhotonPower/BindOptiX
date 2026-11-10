@@ -20,6 +20,9 @@ pytest
 ruff check . && ruff format --check . && mypy
 ```
 
+Meldet der Import `GLIBCXX_… not found` (conda-Python mit altem libstdc++), mit
+`-C cmake.define.BINDOPTIX_STATIC_LIBSTDCXX=ON` bauen.
+
 `BINDOPTIX_REQUIRE_CORE=1` bzw. `BINDOPTIX_REQUIRE_CUDA=1` lassen die Tests scheitern statt
 überspringen, wenn der Kern bzw. das CUDA-Backend fehlt.
 

@@ -3,6 +3,7 @@ project(BindOptiX VERSION 0.1.0 DESCRIPTION "Time, transport and biology layer f
 
 option(BINDOPTIX_BUILD_CORE "Build the compiled module bindoptix._core" ON)
 option(BINDOPTIX_ENABLE_CUDA "Build the CUDA backend (stage Z11)" OFF)
+option(BINDOPTIX_STATIC_LIBSTDCXX "Link libstdc++ and libgcc statically into _core (GCC; for conda Pythons with an old libstdc++)" OFF)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -53,6 +54,9 @@ if(SKBUILD)
   target_link_libraries(_core PRIVATE bindoptix_core)
   if(BINDOPTIX_ENABLE_CUDA)
     target_link_libraries(_core PRIVATE bindoptix_cuda)
+  endif()
+  if(BINDOPTIX_STATIC_LIBSTDCXX)
+    target_link_options(_core PRIVATE -static-libstdc++ -static-libgcc)
   endif()
   install(TARGETS _core LIBRARY DESTINATION bindoptix)
 endif()
