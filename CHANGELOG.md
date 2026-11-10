@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Z10, Teil 2: `bindoptix.optimize` (Information je eingespülter Zelle, Tauschsuche für die Anordnung
+  der Aptamere, vollständige Suche für kleine Fälle); Testfall T26; Ergebnisse zu Anordnung,
+  Flussrate und Kanalhöhe in `docs/ergebnisse-z10.md`. Z10 abgeschlossen.
+
 - Z8: Abschätzung von Erwärmung und optischen Kräften (`docs/abschaetzung-z8.md`); Z8 entfällt bei
   der jetzigen Anregung.
 - Z10, Teil 1: `bindoptix.classify` (Trajektorienbibliothek aus Läufen mit `record_visits`,
