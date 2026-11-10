@@ -29,7 +29,7 @@ Status: ✅ umgesetzt und grün, ◐ teilweise, ○ geplant. Sollwerte nie aus d
 | T23 | Erwärmung: Bilanz ∫q dV = absorbierte Leistung aus F | Energieerhaltung | Z8 | ○ |
 | T24 | Optische Kraft auf eine Kugel aus der Kraftkarte | Mie (CliffordBem-Sollwerte) | Z8 | ○ |
 | T25 | Klassifikation: Konfusion bei einer gefangenen Zelle in geschlossener Form; exakte Aufzählung gegen Monte Carlo; Unabhängigkeit von der Konzentration | analytisch, Aufzählung | Z10 | ✅ `tests/test_classify.py` |
-| T26 | Optimierer findet das bekannte Optimum eines Spielproblems | analytisch | Z10 | ○ |
+| T26 | Optimierer: Tauschsuche findet das Optimum der vollständigen Suche (4 Fälle, 60 Anordnungen); Grenzfälle der Information je Zelle | vollständige Suche, analytisch | Z10 | ✅ `tests/test_optimize.py` |
 | T27 | Sinkgeschwindigkeit und Diffusion eines Stäbchens (Rotationsellipsoid, Orientierung gemittelt) | geschlossene Form nach Perrin (unabhängig von den Achsenreibungen nach Happel–Brenner); Kugelgrenzfall Stokes und Stokes–Einstein | Z3 | ✅ `tests/test_transport.py` |
 | T28 | Einfang im laminaren Durchfluss: Anteil ∫ min(q(y), L v_s) dy / Q mit dem Säulenfluss q(y) des Rechteckkanals (Hazen je Säule) | Hazen, Reihenlösung termweise integriert | Z3 | ✅ `tests/test_transport.py` |
 | T29 | Chipgeometrie: Volumen der Kanäle (Nurbforge) gegen l·b·h, Spotflächen, Kanalboden im Gesichtsfeld gegen numerische Quadratur der Sehnenlänge, Spots in ihrem Kanal, STEP-Rundreise, ungültige Layouts | analytisch, `scipy.integrate.quad` | Z1 | ✅ `tests/test_chip.py` |

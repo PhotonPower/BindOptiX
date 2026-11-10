@@ -48,3 +48,36 @@ Schräges 5 × 5-Grid, ein Kanal je Gridreihe, Ablauf wie Z7 (0,2 µL Konzentrat
    → Serogruppe 1) mit wiederholten Aptameren je Reihe; die Unterscheidung von 25 Subtypen braucht
    deutlich mehr Zellen (Anreicherung) oder eine Kanalführung, bei der jede Zelle alle Aptamere
    passiert (D15). Die Bindungsmatrix aus M5 ersetzt die synthetische.
+
+## Optimierung (Teil 2)
+
+Skript `experiments/z10_optimierung.py`. Zielgröße: Information je eingespülter Zelle (gegenseitige
+Information zwischen Stamm und Ergebnis einer Zelle; verbindet Fanganteil und Trennschärfe, ohne
+Monte-Carlo-Rauschen). Anordnung durch Tauschsuche (`bindoptix.optimize`, T26: findet das Optimum
+der vollständigen Suche).
+
+**Anordnung** (5 Klassen, 10 % Kreuzreaktivität, 5 nL/min, Kanalhöhe 100 µm):
+
+| Anordnung | Information je Zelle | Genauigkeit 50 Zellen | 200 Zellen |
+| --- | --- | --- | --- |
+| ein Aptamer je Reihe | 2,7 mbit | 32 % | 45 % |
+| lateinisches Quadrat | 2,7 mbit | 33 % | 46 % |
+| optimiert | 3,2 mbit | 34 % | 48 % |
+
+Die Anordnung bringt bei 10 % Kreuzreaktivität wenig (+18 % Information, +2 Prozentpunkte
+Genauigkeit). Fanganteil und Kreuzreaktivität bestimmen das Ergebnis.
+
+**Kanalhöhe und Flussrate** (Anteil der Zellen, die einen Spot erreichen und gefangen werden;
+0,2 µL je Kanal laden, danach 70 min weiter mit derselben Flussrate):
+
+| Kanalhöhe | 2 nL/min | 5 nL/min | 10 nL/min |
+| --- | --- | --- | --- |
+| 50 µm | 26 % | 30 % | 24 % |
+| 100 µm | 14 % | 14 % | 10 % |
+| 150 µm | 13 % | 9 % | 6 % |
+
+**Die Kanalhöhe ist der stärkste Hebel:** Halbiert man sie von 100 auf 50 µm, verdoppelt sich der
+Fanganteil. Die Zellen sinken auf halber Strecke ab, und die Wandscherung, mit der sie zu den
+Spots gleiten, steigt bei gleichem Fluss auf das Vierfache. Vorschlag für D16: Kanalhöhe 50 µm
+(oder flacher, soweit Druckabfall, Verstopfung und Fertigung es zulassen), Flussrate um
+5 nL/min je Kanal.
