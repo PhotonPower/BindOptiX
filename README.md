@@ -18,6 +18,17 @@ Nachweisgrenze, Zeit bis zum Ergebnis, Erkennung der Stämme.
 **Stand:** Spezifikation abgenommen (Z0); Abschätzung zum Einfang in
 [docs/abschaetzung-einfang.md](docs/abschaetzung-einfang.md). Siehe [docs/roadmap.md](docs/roadmap.md).
 
+## Installation
+
+```bash
+pip install -e .                                            # Python-Referenz + C++-Kern (CPU)
+pip install -e . -C cmake.define.BINDOPTIX_ENABLE_CUDA=ON   # zusätzlich CUDA (RTX 3090/6000 Ada)
+pip install -e . -C cmake.define.BINDOPTIX_BUILD_CORE=OFF   # ohne Compiler: nur Python
+```
+
+`bindoptix.fast.run` rechnet die Partikel auf dem Kern (CPU oder CUDA) mit denselben Ergebnissen
+wie die Referenz `bindoptix.particles.run`.
+
 ## Dokumentation
 
 - [Plan und Stufen](docs/roadmap.md)

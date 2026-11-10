@@ -33,3 +33,27 @@ jobs:
       - run: ruff check . && ruff format --check .
       - run: mypy
       - run: pytest -q
+        env:
+          BINDOPTIX_REQUIRE_CORE: "1"  # the C++ core must be built here (stage Z11)
+
+  pure:
+    name: pytest without the C++ core (Python reference only)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/cache@v4
+        with:
+          path: wheelhouse
+          key: nurbforge-v0.6.0-${{ runner.os }}-py3.12
+      - name: Nurbforge wheel
+        run: |
+          if ! ls wheelhouse/nurbforge-*.whl > /dev/null 2>&1; then
+            pip wheel --no-deps -w wheelhouse "nurbforge @ git+https://github.com/PhotonPower/Nurbforge@v0.6.0"
+          fi
+      - run: pip install wheelhouse/nurbforge-*.whl
+      - run: pip install -r requirements-dev.txt && pip install -e . -C cmake.define.BINDOPTIX_BUILD_CORE=OFF
+      - run: pytest -q

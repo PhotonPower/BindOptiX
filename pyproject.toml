@@ -1,6 +1,8 @@
 [build-system]
-requires = ["setuptools>=68"]
-build-backend = "setuptools.build_meta"
+# scikit-build-core builds the optional C++/CUDA module bindoptix._core (stage Z11, like BWPM).
+# Without a compiler: pip install . -C cmake.define.BINDOPTIX_BUILD_CORE=OFF (Python reference).
+requires = ["scikit-build-core>=0.10", "pybind11>=2.12"]
+build-backend = "scikit_build_core.build"
 
 [project]
 name = "bindoptix"
@@ -11,11 +13,18 @@ license = { text = "MIT" }
 requires-python = ">=3.10"
 dependencies = ["numpy>=1.24", "scipy>=1.10", "nurbforge>=0.6.0"]
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[tool.scikit-build]
+minimum-version = "build-system.requires"
+cmake.version = ">=3.24"
+build-dir = "build/py-{wheel_tag}"
+wheel.packages = ["src/bindoptix"]
+sdist.exclude = ["build", "experiments/out", ".github"]
 
-[tool.setuptools.package-data]
-bindoptix = ["py.typed"]
+[tool.scikit-build.cmake.define]
+BINDOPTIX_BUILD_CORE = "ON"
+# CUDA backend on the large machine:
+#   pip install -e . -C cmake.define.BINDOPTIX_ENABLE_CUDA=ON
+BINDOPTIX_ENABLE_CUDA = "OFF"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
