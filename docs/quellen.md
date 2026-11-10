@@ -28,3 +28,4 @@ prüfen).
 | perrin1936 | F. Perrin, „Mouvement brownien d'un ellipsoïde (II). Rotation libre et dépolarisation des fluorescences. Translation et diffusion de molécules ellipsoïdales“, J. Phys. Radium 7 (1936) 1–11 | Z | T27: Reibung des Ellipsoids, gemittelt |
 | brenner1961 | H. Brenner, „The slow motion of a sphere through a viscous fluid towards a plane surface“, Chem. Eng. Sci. 16 (1961) 242–251 | Z | T34: exakte Reihe für λ⊥ |
 | bevan2000 | M. A. Bevan, D. C. Prieve, „Hindered diffusion of colloidal particles very near to a wall: Revisited“, J. Chem. Phys. 113 (2000) 1228–1236 | Z | `bindoptix.wall`: Näherung für λ⊥ |
+| carslaw1959 | H. S. Carslaw, J. C. Jaeger, *Conduction of Heat in Solids*, 2. Aufl., Oxford University Press 1959 | Z | Z8: Erwärmung einer gleichmäßig beheizten Kreisfläche |

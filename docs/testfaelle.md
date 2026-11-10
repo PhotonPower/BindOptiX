@@ -28,7 +28,7 @@ Status: ✅ umgesetzt und grün, ◐ teilweise, ○ geplant. Sollwerte nie aus d
 | T22 | Protokoll: Waschschritt entfernt reversibel Gebundenes nach exp(−k_off t) (2 %) | analytisch | Z7 | ✅ `tests/test_readout.py` |
 | T23 | Erwärmung: Bilanz ∫q dV = absorbierte Leistung aus F | Energieerhaltung | Z8 | ○ |
 | T24 | Optische Kraft auf eine Kugel aus der Kraftkarte | Mie (CliffordBem-Sollwerte) | Z8 | ○ |
-| T25 | Klassifikation: Spielproblem mit bekannter Konfusionsmatrix | analytisch | Z10 | ○ |
+| T25 | Klassifikation: Konfusion bei einer gefangenen Zelle in geschlossener Form; exakte Aufzählung gegen Monte Carlo; Unabhängigkeit von der Konzentration | analytisch, Aufzählung | Z10 | ✅ `tests/test_classify.py` |
 | T26 | Optimierer findet das bekannte Optimum eines Spielproblems | analytisch | Z10 | ○ |
 | T27 | Sinkgeschwindigkeit und Diffusion eines Stäbchens (Rotationsellipsoid, Orientierung gemittelt) | geschlossene Form nach Perrin (unabhängig von den Achsenreibungen nach Happel–Brenner); Kugelgrenzfall Stokes und Stokes–Einstein | Z3 | ✅ `tests/test_transport.py` |
 | T28 | Einfang im laminaren Durchfluss: Anteil ∫ min(q(y), L v_s) dy / Q mit dem Säulenfluss q(y) des Rechteckkanals (Hazen je Säule) | Hazen, Reihenlösung termweise integriert | Z3 | ✅ `tests/test_transport.py` |
@@ -41,6 +41,7 @@ Status: ✅ umgesetzt und grün, ◐ teilweise, ○ geplant. Sollwerte nie aus d
 | T35 | Kontinuum im Kanalvolumen (3D): quer gleichförmiger Fall = 2D-Lösung × Breite (1e−10), absorbierender Spot im Rechteckkanal gegen lokale Lévêque-Lösung mit der Wandscherung γ̇(y) (4 %), Massenbilanz und Symmetrie mit zwei Spezies, Spots des Chiplayouts als Reaktionsflächen | T12, Lévêque, Bilanz | Z4 | ✅ `tests/test_continuum3d.py` |
 | T36 | Kopplung Fouling → Einfang: ohne Fouling identisch zum Lauf mit konstanter Fangrate; mit Fouling weniger Fänge, keine Fänge nach Füllung der Spots, Füllfront wandert stromab, Port B konsistent; Affinität je Spot (Zeile der Bindungsmatrix) | Gleichheit mit dem ungekoppelten Lauf, Grenzfälle | Z5 | ✅ `tests/test_binding.py` |
 | T37 | Protokollmechanik: Fortsetzen eines Laufs bitgleich zum Durchlauf, Einspülplan, wartende Zellen bewegen sich nicht, Inkubation ohne Strömung ohne Drift | Gleichheit, analytisch | Z7 | ✅ `tests/test_readout.py` |
+| T38 | Trajektorienbibliothek: vorhergesagte Fänge je Spot erklären direkte Läufe mit endlichen Fangraten und unspezifischer Haftung (gleiche Zufallsströme, Poisson-Binomial-Streuung) | direkter Partikellauf | Z10 | ✅ `tests/test_classify.py` |
 
 T3–T5 prüfen exportierte Karten aus hp-FEM bzw. CliffordBem und warten auf deren Export
 (`docs/vorschlaege/export-antwortkarte.md`). Datenmodell, Interpolation, Ausbeute und Format sind
