@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Z6: Reihe über Golddicke (5–50 nm) und Haftschicht (Ti, Cr) mit Exporten aus hp-FEM (#34);
+  `experiments/z6_echte_karten.py DIR` vergleicht alle Stapel. 30 nm Gold geben das stärkste
+  Signal, wenn die SIL bis zu hoher NA sammelt (`docs/ergebnisse-z6.md`). Quelle johnson1974.
+
 - Z6 mit Karten aus hp-FEM: `experiments/z6_echte_karten.py` rechnet das Photonenbudget mit
   exportierter Feldkarte (640 nm, Anregung von der Lösungsseite) und Antworttabelle (670 nm,
   Substrat in drei NA-Bereichen); Ergebnisse in `docs/ergebnisse-z6.md`. D4 um die Anordnung
