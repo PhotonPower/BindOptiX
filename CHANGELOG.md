@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Z6, Teil 2: `bindoptix.background` (Flächenquellen wie Gold-Photolumineszenz, 2PP-Lack und
+  Glas als detektierte Photonen je µm²·s·mW über das Feld oder nur auf den Spots, Terme für
+  `imaging.render`; Autofluoreszenz der Zellen aus der Bestrahlung nach F und der Sammlung
+  tr(A_det)/3 der Antwortkarte; Status L/K/P je Quelle, Platzhalter werden gemeldet);
+  Testfall T41; Quellen für Literaturwerte des Untergrunds in `docs/quellen.md` (nur zitiert).
+
 - Korrektur Z2 (#20): `EmitterResponseTable` prüft die Differenzen A_tot − A_rad und
   A_rad − ΣA_det auf Symmetrie und Semidefinitheit gegen A_tot bzw. A_rad statt gegen die
   Differenz selbst. Physikalisch verschwindende Differenzen (verlustfreier Stapel, Detektoren über

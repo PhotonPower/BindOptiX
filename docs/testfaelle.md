@@ -44,6 +44,7 @@ Status: ✅ umgesetzt und grün, ◐ teilweise, ○ geplant. Sollwerte nie aus d
 | T38 | Trajektorienbibliothek: vorhergesagte Fänge je Spot erklären direkte Läufe mit endlichen Fangraten und unspezifischer Haftung (gleiche Zufallsströme, Poisson-Binomial-Streuung) | direkter Partikellauf | Z10 | ✅ `tests/test_classify.py` |
 | T39 | C++-Kern (CPU) gegen Python-Referenz: Zufallszahlen bitgleich, sechs Modellvarianten (Strömung, Gleiten, Haften, Wandhydrodynamik, Schwimmen, Spiegelboden mit schräger Schwerkraft), Schnappschüsse, Warten, Fortsetzen, Besuchsaufzeichnung, Ratentabelle: Orte auf 1e−9 µm, Zustände gleich | Python-Referenz | Z11 | ✅ `tests/test_core.py` (CI) |
 | T40 | CUDA-Kern gegen CPU-Kern und Referenz; Durchsatz 10⁶ Zellen | CPU-Kern, Referenz | Z11 | ✅ `tests/test_core_cuda.py` (Server herkules3, RTX 6000 Ada, 2026-11-10; nicht in der CI) |
+| T41 | Untergrund: Flächenquellen linear in Leistung und Zeit, Quellen „spots“ nur auf den Spots, Summe im Bild; Autofluoreszenz einer Zelle = k · I · tr(A_det)/3 (gleichförmiges Feld, anisotrope Sammlung), I aus der Feldamplitude; Platzhalter werden gemeldet, L/K ohne Beleg abgelehnt | analytisch | Z6 | ✅ `tests/test_background.py` |
 
 T3–T5 prüfen exportierte Karten aus hp-FEM bzw. CliffordBem und warten auf deren Export
 (`docs/vorschlaege/export-antwortkarte.md`). Datenmodell, Interpolation, Ausbeute und Format sind
