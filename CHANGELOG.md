@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Z12: Antworten aus RTT-Fusion #106 im Vorschlag und in der Roadmap festgehalten (D13
+  übernommen, Q als Tracker-Reihe, Adapter in `rtt_fusion.adapters`).
+
 - Z12 Teil 2: Vorschlag `docs/vorschlaege/rtt-fusion-datenknoten.md` für RTT-Fusion (D13
   übernehmen, Datenknoten `bindoptix.signal`, Meta-Block Zeitschleife, Prüfungen).
 

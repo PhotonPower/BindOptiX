@@ -3,7 +3,8 @@
 > Erweiterungsvorschlag nach AGENTS.md Regel 4 (BindOptiX liest RTT-Fusion nur). Bezug: Stufe Z12,
 > ADR-Entwurf Datenports (`docs/adr-entwurf-datenports.md`), in RTT-Fusion `docs/fusionsplan.md`
 > Abschnitt 6.2 (D13), 8 (K5, K8) und 9, `docs/konzept-node-workflow.md` Abschnitt 7 und L6,
-> Stufe R20. Stand gelesen: RTT-Fusion `main` 2f4db25 (2026-11-19).
+> Stufe R20. Stand gelesen: RTT-Fusion `main` 2f4db25 (2026-11-19). Eingereicht als
+> RTT-Fusion #106; Antworten am Ende.
 
 ## Ausgangslage
 
@@ -88,3 +89,20 @@ abdecken, steht dort. In RTT-Fusion genügte `tests/test_adapter_bindoptix.py` m
   (Plan: „Adapter in getrennten Paketen“)?
 - Wie werden die Detektorbereiche einer Antwortkarte (z. B. `substrate_na_lt_1.45`) an die
   Detektoren des optischen Graphen gebunden: über den Namen oder über einen eigenen Parameter?
+
+## Antworten aus RTT-Fusion #106 (Maintainer, 2026-11-19)
+
+- **D13 wird übernommen**, die Socket-Namen bleiben.
+- **Q** trägt die Tracker-Reihe (n_replicas, n_frames, 7) = (R_F [nm], μ̂, d [nm]) im System von
+  BioOptoMD (Oberfläche z = 0, Lösung z > 0) mit Metadaten des Laufs (Quelle, Zeitschritt). Ins
+  RTT-System rechnet nur der Lichtknoten um (`dipoles_from_tracker`); DP8 bleibt an einer Stelle.
+  `EmitterEnsemble.from_tracker` liest diese Reihe bereits.
+- **Adapter** in `rtt_fusion/adapters/bindoptix.py` mit verzögertem Import (BindOptiX ist MIT).
+- **Detektorbereiche** über einen eigenen Parameter von `bindoptix.signal`: Bereichsname der
+  Antwortkarte → Detektor bzw. Ausgang des Graphen; fehlende oder doppelte Namen ergeben eine
+  Diagnose; ohne Parameter nur bei genau einem Bereich.
+- **Reihenfolge in RTT-Fusion:** (1) D13 und Vertrag für Q im Fusionsplan, (2) Evaluator für
+  `biooptomd.layer`, (3) `bindoptix.signal` mit Adapter und `tests/test_adapter_bindoptix.py`,
+  (4) K5, (5) `bindoptix.time_loop` (R20) und K8; Beginn nach der Stufe R32.
+- Hinweis: `biooptomd.layer` hat noch keinen Evaluator; Q wird im Graphen bisher weder erzeugt
+  noch verbraucht.
