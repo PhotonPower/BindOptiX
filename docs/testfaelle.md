@@ -9,7 +9,7 @@ Status: ✅ umgesetzt und grün, ◐ teilweise, ○ geplant. Sollwerte nie aus d
 | T3 | Anregungsfeld an einem Goldfilm (Kretschmann, p-Pol.) aus F | Transfer-Matrix, Resonanzwinkel wie K4 | Z2 | ○ |
 | T4 | Zerfallsratentensor eines Dipols über Glas / Au / Wasser über dem Abstand | Chance–Prock–Silbey bzw. Lukosz–Kunz (unabhängige Python-Rechnung im Test) | Z2 | ○ |
 | T5 | Detektionstensor: Abstrahlung in das Substrat, überkritischer Anteil, SPCE-Winkel = SPR-Winkel | Lukosz–Kunz; Lakowicz 2004 | Z2 | ○ |
-| T6 | Eigenschaften der Tensoren: symmetrisch, positiv semidefinit, A_det ≤ A_rad ≤ A_tot; Mittel über Orientierungen = Spur/3; Interpolation erhält beides | analytisch; Ikosaeder als sphärisches 5-Design | Z2 | ✅ `tests/test_ports.py` |
+| T6 | Eigenschaften der Tensoren: symmetrisch, positiv semidefinit, A_det ≤ A_rad ≤ A_tot (Differenzen gegen die größere Matrix gemessen, verschwindende Differenzen aus Rundungsrauschen werden angenommen, #20); Mittel über Orientierungen = Spur/3; Interpolation erhält beides | analytisch; Ikosaeder als sphärisches 5-Design | Z2 | ✅ `tests/test_ports.py` |
 | T7 | Freie Diffusion: mittlere quadratische Verschiebung 6Dt | Einstein, Standardfehler 4σ | Z3 | ✅ `tests/test_transport.py` |
 | T8 | Sedimentation: Driftgeschwindigkeit und Gleichgewicht c(z) ∝ exp(−z·v_s/D) | Stokes; Mason–Weaver | Z3 | ✅ `tests/test_transport.py` |
 | T9 | Run-and-Tumble: effektive Diffusion v²τ/(3(1−α)) | Lovely–Dahlquist 1975 | Z3 | ✅ `tests/test_transport.py` |

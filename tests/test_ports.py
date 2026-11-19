@@ -81,6 +81,47 @@ def test_t6_invalid_tables_rejected(which: str) -> None:
         EmitterResponseTable(t.grid, 0.67, 1.333, t.detectors, tot, rad, det)
 
 
+def rounding_noise(
+    rng: np.random.Generator, a: NDArray[np.float64], rel: float
+) -> NDArray[np.float64]:
+    """Indefinite, slightly asymmetric noise of size rel·|A| per entry, like quadrature error."""
+    scale = np.abs(a).max(axis=(-2, -1), keepdims=True)
+    return np.asarray(rel * scale * rng.uniform(-1.0, 1.0, size=a.shape), dtype=np.float64)
+
+
+@pytest.mark.parametrize("case", ["lossless", "full_coverage"])
+def test_t6_vanishing_differences_accepted(case: str) -> None:
+    # Issue #20: A_tot = A_rad (lossless stack without guided modes) or A_rad = ΣA_det (detectors
+    # cover all directions) hold exactly; the tables then differ only by rounding noise of
+    # 1e-13·|A|, which is indefinite and must not reject the table.
+    rng = np.random.default_rng(SEED)
+    t = make_table(rng)
+    tot, rad, det = t.a_tot, t.a_rad, t.a_det
+    if case == "lossless":
+        rad = tot + rounding_noise(rng, tot, 1e-13)
+        det = det * 0.0 + rad[..., None, :, :] / (2 * len(t.detectors))
+    else:
+        rad = det.sum(axis=3) + rounding_noise(rng, rad, 1e-13)
+        tot = rad + random_psd(rng, t.grid.shape)
+    EmitterResponseTable(t.grid, 0.67, 1.333, t.detectors, tot, rad, det)
+
+
+@pytest.mark.parametrize("case", ["absorbed", "missing"])
+def test_t6_negative_difference_relative_to_total_rejected(case: str) -> None:
+    # A physically negative difference of 1e-7 of the larger tensor (100 × PSD_TOL) is rejected.
+    t = make_table(np.random.default_rng(SEED))
+    tot, rad, det = t.a_tot, t.a_rad, t.a_det
+    dip = np.zeros_like(tot)
+    dip[..., 2, 2] = 1.0
+    if case == "absorbed":
+        rad = tot + 1e-7 * np.trace(tot, axis1=-2, axis2=-1)[..., None, None] * dip
+    else:
+        rad = det.sum(axis=3) - 1e-7 * np.trace(rad, axis1=-2, axis2=-1)[..., None, None] * dip
+        tot = rad + random_psd(np.random.default_rng(SEED + 2), t.grid.shape)
+    with pytest.raises(ValueError, match=case):
+        EmitterResponseTable(t.grid, 0.67, 1.333, t.detectors, tot, rad, det)
+
+
 # --- rates ---------------------------------------------------------------------------------
 
 

@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Korrektur Z2 (#20): `EmitterResponseTable` prüft die Differenzen A_tot − A_rad und
+  A_rad − ΣA_det auf Symmetrie und Semidefinitheit gegen A_tot bzw. A_rad statt gegen die
+  Differenz selbst. Physikalisch verschwindende Differenzen (verlustfreier Stapel, Detektoren über
+  alle Richtungen) wurden sonst wegen Rundungsrauschen zufällig abgelehnt. Testfall T6 erweitert.
+
 - Z11: kompilierter Kern `bindoptix._core` (C++20, OpenMP; CUDA optional) für den Partikeltransport
   mit denselben Gleichungen, derselben Reihenfolge und denselben Zufallszahlen wie die Referenz,
   Fassade `bindoptix.fast.run` (Backends auto/cpu/cuda/python), Build mit scikit-build-core und

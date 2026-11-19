@@ -140,14 +140,21 @@ def quadratic(a: ArrayLike, mu: ArrayLike) -> FloatArray:
     return np.asarray(np.einsum("ni,nij,nj->n", m, t, m), dtype=np.float64)
 
 
-def _check_psd(name: str, a: FloatArray) -> None:
+def _check_psd(name: str, a: FloatArray, reference: FloatArray | None = None) -> None:
+    """Reject `a` unless symmetric and positive semidefinite up to rounding.
+
+    Both tolerances are relative to `reference` (default `a`). A difference such as
+    A_tot − A_rad may vanish exactly and then consist of rounding noise only; it is measured
+    against the larger tensor it was formed from (issue #20).
+    """
     if not np.isfinite(a).all():
         raise ValueError(f"{name} contains non-finite values")
-    scale = max(float(np.max(np.abs(a))), 1e-300)
+    ref = a if reference is None else reference
+    scale = max(float(np.max(np.abs(ref))), 1e-300)
     if np.max(np.abs(a - np.swapaxes(a, -1, -2))) > SYMMETRY_TOL * scale:
         raise ValueError(f"{name} is not symmetric")
-    ev = np.linalg.eigvalsh(a)
-    tr = np.abs(np.trace(a, axis1=-2, axis2=-1))[..., None]
+    ev = np.linalg.eigvalsh(0.5 * (a + np.swapaxes(a, -1, -2)))
+    tr = np.abs(np.trace(ref, axis1=-2, axis2=-1))[..., None]
     if np.any(ev < -PSD_TOL * np.maximum(tr, 1e-300)):
         raise ValueError(f"{name} is not positive semidefinite")
 
@@ -191,8 +198,10 @@ class EmitterResponseTable:
         _check_psd("a_tot", tot)
         _check_psd("a_rad", rad)
         _check_psd("a_det", det)
-        _check_psd("a_tot - a_rad (absorbed power)", tot - rad)
-        _check_psd("a_rad - sum(a_det) (power missing the detectors)", rad - det.sum(axis=3))
+        _check_psd("a_tot - a_rad (absorbed power)", tot - rad, reference=tot)
+        _check_psd(
+            "a_rad - sum(a_det) (power missing the detectors)", rad - det.sum(axis=3), reference=rad
+        )
         object.__setattr__(self, "a_tot", tot)
         object.__setattr__(self, "a_rad", rad)
         object.__setattr__(self, "a_det", det)
