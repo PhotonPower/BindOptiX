@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- T3 abgenommen: hp-FEM hat zwölf exportierte Feldkarten (Au-Film 50 nm, 30 nm, ohne Film;
+  p, s und zirkular) gegen die Referenz geprüft, größte Abweichung 5e−15 (#23).
+
 - Z2, T3 (Referenz): Feld einer ebenen Welle aus dem Substrat durch einen Schichtstapel in
   `tests/planar_reference.py` (normiert auf I₀, beliebige Richtung und Polarisation), geprüft
   gegen das homogene Medium, die Formeln von Raether für Reflexion und Feldüberhöhung am
