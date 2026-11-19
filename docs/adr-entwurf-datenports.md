@@ -98,16 +98,16 @@ an Kavitäten adaptive Stützstellen. Herkunft wie bei der Beugungstabelle.
 
 ## Konformitätstests
 
-| Nr. | Prüfung | Referenz |
-| --- | --- | --- |
-| DP1 | F an einer Platte und am Goldfilm (Kretschmann) | Airy, Transfer-Matrix, K4-Resonanz |
-| DP2 | ∫ q dV = absorbierte Leistung aus der Leistungsbilanz des Lösers | Energieerhaltung |
-| DP3 | F aus hp-FEM gegen F aus CliffordBem für eine Goldkugel | Querprobe, Mie |
-| DP4 | A_tot, A_rad über Glas / Au / Wasser über dem Abstand | Chance–Prock–Silbey, Lukosz–Kunz |
-| DP5 | A_det für ein ideales Objektiv: Anteil in den Raumwinkel der NA, überkritischer Anteil, SPCE-Winkel | Lukosz–Kunz, Lakowicz 2004 |
-| DP6 | Tensoren symmetrisch, positiv semidefinit; Mittel über die Kugel = Spur/3 | analytisch |
-| DP7 | B → Q: Gewichte summieren zu 1; ohne Analyt nur Q_frei | Grenzfall |
-| DP8 | Spiegelung z → −z an F, Q und den Tensoren | Vorzeichen analytisch (Befund K4) |
+| Nr. | Prüfung | Referenz | in BindOptiX |
+| --- | --- | --- | --- |
+| DP1 | F an einer Platte und am Goldfilm (Kretschmann) | Airy, Transfer-Matrix, K4-Resonanz | T3 |
+| DP2 | ∫ q dV = absorbierte Leistung aus der Leistungsbilanz des Lösers | Energieerhaltung | T3 (q der Karte, nicht in der CI) |
+| DP3 | F aus hp-FEM gegen F aus CliffordBem für eine Goldkugel | Querprobe, Mie | offen (Export aus CliffordBem fehlt) |
+| DP4 | A_tot, A_rad über Glas / Au / Wasser über dem Abstand | Chance–Prock–Silbey, Lukosz–Kunz | T4 |
+| DP5 | A_det für ein ideales Objektiv: Anteil in den Raumwinkel der NA, überkritischer Anteil, SPCE-Winkel | Lukosz–Kunz, Lakowicz 2004 | T5 |
+| DP6 | Tensoren symmetrisch, positiv semidefinit; Mittel über die Kugel = Spur/3 | analytisch | T6 |
+| DP7 | B → Q: Gewichte summieren zu 1; ohne Analyt nur Q_frei | Grenzfall | T43 |
+| DP8 | Spiegelung z → −z an F, Q und den Tensoren | Vorzeichen analytisch (Befund K4) | T2 |
 
 ## Grenzen
 

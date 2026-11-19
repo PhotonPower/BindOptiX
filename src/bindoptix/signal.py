@@ -22,11 +22,13 @@ the ensemble samples above gold.
 from __future__ import annotations
 
 import math
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
 
+from bindoptix.binding import Occupancy
 from bindoptix.ports import EmitterResponseTable, FieldMap, FieldMapStack, RegularGrid
 from bindoptix.units import (
     SPEED_OF_LIGHT,
@@ -124,6 +126,57 @@ class EmitterEnsemble:
         off = np.column_stack([np.zeros(n), np.zeros(n), np.full(n, height_um)])
         return cls(off, mu, brightness=brightness)
 
+    @classmethod
+    def from_tracker(
+        cls,
+        series_nm: ArrayLike,
+        anchor_xy_nm: Sequence[float] | None = None,
+        brightness: float = 1.0,
+    ) -> EmitterEnsemble:
+        """Port Q from the ``DipoleAndDistanceTracker`` of BioOptoMD.
+
+        ``series_nm``: (…, 7) = (R_F [nm], μ̂, d [nm]) per replica and frame (BioOptoMD
+        PHYSICS_MODEL.md 6.1), d = z(R_F) − z_surface. Every frame is one sample of equal
+        weight. Offsets: lateral R_F − anchor (default: the mean over all samples), height d;
+        BioOptoMD puts the solution above the surface as the sensor frame does, so nothing is
+        mirrored. μ̂ serves as absorption and emission dipole.
+        """
+        a = np.asarray(series_nm, dtype=np.float64)
+        if a.shape[-1] != 7:
+            raise ValueError("tracker output must have 7 columns (R_F, mu, d)")
+        a = a.reshape(-1, 7)
+        xy = a[:, 0:2]
+        anchor = xy.mean(axis=0) if anchor_xy_nm is None else np.asarray(anchor_xy_nm, float)
+        off = np.column_stack([xy - anchor, a[:, 6]]) * 1e-3
+        return cls(off, a[:, 3:6], brightness=brightness)
+
+
+def mix_ensembles(
+    ensembles: Sequence[EmitterEnsemble], fractions: Sequence[float]
+) -> EmitterEnsemble:
+    """Σ_s f_s Q_s weighted per sample (ADR draft, section 2; DP7).
+
+    Sample weights f_s B_s w_si / Σ_s f_s B_s, brightness Σ_s f_s B_s, so that every quantity
+    linear in the samples (the detected rate) is Σ_s f_s times its value for Q_s. States with
+    f_s = 0 contribute no samples.
+    """
+    f = np.asarray(fractions, dtype=np.float64)
+    if f.shape != (len(ensembles),) or np.any(f < 0.0) or abs(f.sum() - 1.0) > 1e-9:
+        raise ValueError("one non-negative fraction per ensemble, summing to 1")
+    used = [(fs, q) for fs, q in zip(f, ensembles, strict=True) if fs > 0.0]
+    scale = [fs * q.brightness for fs, q in used]
+    total = float(sum(scale))
+    if total == 0.0:  # all dark: keep the geometry, brightness 0
+        scale = [fs for fs, _ in used]
+    w = np.concatenate([c * np.asarray(q.weights) for c, (_, q) in zip(scale, used, strict=True)])
+    return EmitterEnsemble(
+        np.concatenate([q.offsets_um for _, q in used]),
+        np.concatenate([q.mu_abs for _, q in used]),
+        np.concatenate([np.asarray(q.mu_em) for _, q in used]),
+        w,
+        total,
+    )
+
 
 def irradiance_w_m2(e_v_m: ArrayLike, n_host: float) -> FloatArray:
     """I = ½ n c ε₀ |E|² for complex fields (…, 3)."""
@@ -163,6 +216,41 @@ def detected_rate_s(
     w = ensemble.weights if ensemble.weights is not None else np.full(pts.shape[0], 1.0)
     per_sample = (r_exc * q)[:, None] * eta
     return np.asarray(ensemble.brightness * (w @ per_sample))
+
+
+def spot_rates_s(
+    occupancy: Occupancy,
+    ensembles: Mapping[str, EmitterEnsemble],
+    anchors_um: ArrayLike,
+    excitation: FieldMap | FieldMapStack,
+    table: EmitterResponseTable,
+    dye: Fluorophore,
+    power_mw: float,
+) -> FloatArray:
+    """Mean detected rate per receptor (nt, S, D) [1/s] from port B and Q per state.
+
+    ``anchors_um``: (S, 3) anchor of each spot of ``occupancy.spots`` (sensor frame). Every
+    state of port B needs an ensemble; a missing one is an error, never a silent placeholder.
+    """
+    missing = [s for s in occupancy.states if s not in ensembles]
+    if missing:
+        raise ValueError(f"no ensemble for the states {missing}")
+    anchors = np.atleast_2d(np.asarray(anchors_um, dtype=np.float64))
+    if anchors.shape != (len(occupancy.spots), 3):
+        raise ValueError("one anchor (x, y, z) per spot required")
+    per_state = np.stack(
+        [
+            np.stack(
+                [
+                    detected_rate_s(a, ensembles[s], excitation, table, dye, power_mw)
+                    for a in anchors
+                ]
+            )
+            for s in occupancy.states
+        ],
+        axis=-2,
+    )  # (S, n_states, D)
+    return np.asarray(np.einsum("tsk,skd->tsd", occupancy.fractions, per_state))
 
 
 def surviving_fraction(rate_exc_s: float, dye: Fluorophore, t_s: float) -> float:
