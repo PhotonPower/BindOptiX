@@ -35,13 +35,19 @@ Biosensor braucht zusätzlich die Gegenrichtung und die Zeit:
 - **Normierung:** je 1 mW einfallender Leistung am Eingangsport der Fusion; Zeitfaktor e^(−iωt).
   E skaliert mit √P, q mit P, ΔT mit P, solange keine Temperaturrückkopplung gerechnet wurde.
   Mit Rückkopplung (hp-FEM, ε(T)) trägt die Karte die Leistung, für die sie gilt, und das Flag
-  `nonlinear`; dann ist sie nur bei dieser Leistung gültig.
+  `nonlinear`; dann ist sie nur bei dieser Leistung gültig. Ergänzung (#23, 2026-11-19): Die
+  Löser liefern Karten für eine ebene Welle der Bestrahlungsstärke I₀ (`irradiance_w_m2`,
+  senkrecht zum Strahl im Einfallsmedium); den Faktor „Bestrahlungsstärke am Spot je mW am
+  Eingangsport“ liefert die Beleuchtungsseite der K5-Kette, bis dahin ein Platzhalter. Je
+  Einfallsrichtung und Polarisation eine Karte; die Überlagerung macht der Verbraucher.
 - **Gitter:** mehrere geschachtelte Gitter je Karte (fein an Kavitäten und Hotspots, grob im
   Kanal). Ausgewertet wird das feinste Gitter, das den Punkt enthält. Begründung: Nanometer an
   den Kavitäten gegen Mikrometer im Kanal; ein gemeinsames Netz für Optik und Fluidik ist
   ausdrücklich nicht vorgesehen.
 - **Metadaten:** Pose zum RTT-System, Medium je Gitterpunkt (Materialkennung), Herkunft (Löser,
-  Version, Inhalts-Hash, Konvergenz), wie die Beugungstabelle.
+  Version, Inhalts-Hash, Konvergenz), wie die Beugungstabelle. Schlüssel (#23): `k_hat`,
+  `polarisation`, `medium` mit Namenstabelle `media`, `phase_reference` in der Herkunft; die
+  Pose gehört zum Aufbau, nicht zur Karte.
 - **Semantik:** Datenport ohne Richtung und ohne Leistungsfluss; im Ausführungsgraphen eine
   Abhängigkeit, kein Pfadabschnitt (wie N und Q).
 - **Erzeuger:** hp-FEM (Nédélec-Feld, `absorbed_power_density`, `physics::Thermal`), CliffordBem
