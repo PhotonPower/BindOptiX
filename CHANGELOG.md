@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Z7 mit dem Photonenbudget nach D4 (7,1 statt 12,6 Photonen/s): 2 s Belichtung zählen alle
+  15 Zellen, 1 s nur 13 (`docs/ergebnisse-z7.md`). Korrektur in `experiments/z7_ende_zu_ende.py`:
+  Photonen der Zellen mit der Belichtungszeit skaliert.
+
 - Z12: Antworten aus RTT-Fusion #106 im Vorschlag und in der Roadmap festgehalten (D13
   übernommen, Q als Tracker-Reihe, Adapter in `rtt_fusion.adapters`).
 
