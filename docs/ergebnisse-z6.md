@@ -122,3 +122,27 @@ Bei 2 nm Höhe liegen alle Stapel bei 0,08–0,17 je s (Löschung). Mit Haftschi
    Ti und Cr sind gleichwertig. Ein molekularer Haftvermittler vermiede diesen Verlust.
 4. Die Volumendaten gelten für geschlossene Filme; die Werte für 5 nm (und eingeschränkt 10 nm)
    sind deshalb nur grob.
+
+## Gewählter Aufbau nach D4 (2026-11-19)
+
+Wasser / 30 nm Gold / Glas ohne Haftschicht, SIL nimmt den Kegel n_s sin θ < 1,45 auf
+(θ < 72,5° im Glas). Exporte aus hp-FEM (#37); die Feldkarte ist identisch mit der aus #34,
+die beiden Substratbereiche ergeben zusammen die drei Bereiche aus #34 (Abweichung 1e−14).
+`python experiments/z6_echte_karten.py MAP TABLE substrate_na_lt_1.45`; übrige Annahmen wie oben,
+Relay-Optik ohne Verluste.
+
+| Höhe über dem Gold | Anregung gegen ohne Gold | Quantenausbeute | Anteil von A_rad in der SIL | erkannte Photonen je s und Farbstoff |
+| --- | --- | --- | --- | --- |
+| 2 nm | 0,62 | 0,003 | 0,54 | 0,12 |
+| 5 nm | 0,72 | 0,034 | 0,53 | 1,7 |
+| 10 nm | 0,91 | 0,119 | 0,51 | 7,1 |
+| 20 nm | 1,31 | 0,188 | 0,48 | 15,3 |
+
+Der Kegel bis NA 1,45 erfasst rund 82 % dessen, was ins Substrat geht; der Rest liegt jenseits
+von 72,5°. Die kürzesten Belichtungen bei 5 nm Höhe sind dieselben wie für 50 nm Gold (Tabelle
+oben, auf dem Raster 0,01–300 s): 200 eingeschaltete Farbstoffe und 1 % Restleuchten brauchen
+10 s, 2 500 Farbstoffe 0,1 s. Bei 10 nm Höhe ist das Signal viermal so groß.
+
+Damit hängt das Signal vor allem noch an der Höhe der Farbstoffe über dem Gold (BioOptoMD), an
+der Zahl der eingeschalteten Aptamere und am Restleuchten (D18, Messplan M7) sowie an den
+Verlusten der Relay-Optik.
