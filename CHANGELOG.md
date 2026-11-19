@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- T5 abgenommen: hp-FEM hat A_rad und A_det der drei Tabellen aus T4 gegen die Referenz
+  geprüft, größte Abweichung 7,3e−8 (Au-Film), sonst ≤ 2,1e−14 (#23).
+
 - Z2, T5 (Referenz): Abstrahlung ins Deckmedium und ins Substrat in `tests/planar_reference.py`
   (Winkelspektrum und Transmission des Stapels; Deckmedium nach Lukosz III), geprüft gegen die
   geschlossenen Ausdrücke von Lukosz III für den Halbraum, die Energiebilanz mit A_tot aus T4
