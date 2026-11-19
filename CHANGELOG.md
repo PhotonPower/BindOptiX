@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Z12 Teil 2: Vorschlag `docs/vorschlaege/rtt-fusion-datenknoten.md` für RTT-Fusion (D13
+  übernehmen, Datenknoten `bindoptix.signal`, Meta-Block Zeitschleife, Prüfungen).
+
 - Z6: Photonenbudget für den Aufbau nach D4 (30 nm Gold, SIL bis NA 1,45) mit Exporten aus
   hp-FEM (#37); 7 Photonen je s und Farbstoff bei 10 nm Höhe (`docs/ergebnisse-z6.md`).
 
