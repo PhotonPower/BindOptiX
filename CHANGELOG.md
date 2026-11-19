@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Korrektur T4 (#23): Die Referenz integrierte nur auf der reellen Achse und verlor bei
+  verlustfreien Schichten mit geführten Moden (Pole auf der Achse) deren Leistung; sie lieferte
+  dort A_rad statt A_tot. Beide Fassungen integrieren jetzt unter der reellen Achse (kausaler
+  Grenzfall verschwindender Dämpfung), geprüft gegen η → 0 einer absorbierenden Schicht;
+  Quadraturwarnungen sind Fehler; der Tabellentest prüft `content_hash` gegen
+  `source["stack"]`. Gefunden von hp-FEM mit exportierten Tabellen.
+
 - Z2, T4 (Referenz): `tests/planar_reference.py` mit der Gesamtleistung eines Dipols über
   einem Schichtstapel nach Chance–Prock–Silbey und nach Lukosz–Kunz (zwei getrennt
   geschriebene Rechnungen, nur im Test), geprüft gegen Bilddipol, quasistatische Bildladung,
