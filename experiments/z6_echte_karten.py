@@ -8,6 +8,9 @@ dye, the power, the camera and the heights of the dyes stay placeholders (P).
 Usage: python experiments/z6_echte_karten.py FIELD_MAP.json RESPONSE_TABLE.json [REGION ...]
 REGION: detector regions taken in by the SIL (default: every region whose name starts with
 "substrate").
+
+Series (issue #34): python experiments/z6_echte_karten.py DIR compares every pair
+z6_field_map_640nm_<stack>.json / z6_emitter_table_670nm_<stack>.json in DIR.
 """
 
 import math
@@ -30,16 +33,45 @@ from bindoptix.signal import (
 HEIGHTS_NM = (2.0, 3.0, 5.0, 10.0, 20.0)  # dye above the gold (P, until BioOptoMD)
 
 
+DYE = Fluorophore(250_000.0, 0.27, 0.640, 0.670, bleach_yield=1e-6)  # Cy5-like (P)
+POWER_MW, FIELD_MM = 10.0, 5.0
+IRR_PER_MW = 1e-3 / (math.pi * (0.5 * FIELD_MM * 1e-3) ** 2)  # W/m² per mW (P)
+
+
+def load(map_path: Path, table_path: Path) -> tuple[FieldMap, EmitterResponseTable]:
+    field = FieldMap.from_json(map_path.read_text(encoding="utf-8"))
+    if field.irradiance_w_m2 is not None:
+        field = field.per_port_power(IRR_PER_MW, "P")
+    return field, EmitterResponseTable.from_json(table_path.read_text(encoding="utf-8"))
+
+
+def series(folder: Path) -> None:
+    """Detected photons per s and on-dye for each stack; SIL takes all of the substrate or
+    only NA < 1.333."""
+    heights = (2.0, 5.0, 10.0, 20.0)
+    print("stack        " + "  ".join(f"{h:4.0f} nm all / <1.333" for h in heights))
+    for m in sorted(folder.glob("z6_field_map_640nm_*.json")):
+        name = m.stem.removeprefix("z6_field_map_640nm_")
+        field, table = load(m, folder / f"z6_emitter_table_670nm_{name}.json")
+        low = [table.detectors.index(r) for r in table.detectors if r.startswith("substrate_na_")]
+        low = [i for i in low if not table.detectors[i].endswith("ge_1.333")]
+        sub = [i for i, r in enumerate(table.detectors) if r.startswith("substrate")]
+        cells = []
+        for h in heights:
+            on = EmitterEnsemble.isotropic(h * 1e-3, 300, 1)
+            det = detected_rate_s([0, 0, 0], on, field, table, DYE, POWER_MW)
+            cells.append(f"{det[sub].sum():8.2f} / {det[low].sum():6.2f}")
+        print(f"{name:10s}  " + "  ".join(cells))
+
+
 def main(argv: list[str]) -> None:
+    if len(argv) == 1 and Path(argv[0]).is_dir():
+        series(Path(argv[0]))
+        return
     if len(argv) < 2:
         raise SystemExit(__doc__)
-    dye = Fluorophore(250_000.0, 0.27, 0.640, 0.670, bleach_yield=1e-6)  # Cy5-like (P)
-    power_mw, field_mm = 10.0, 5.0
-    irr_per_mw = 1e-3 / (math.pi * (0.5 * field_mm * 1e-3) ** 2)  # W/m² per mW (P)
-    field = FieldMap.from_json(Path(argv[0]).read_text(encoding="utf-8"))
-    if field.irradiance_w_m2 is not None:
-        field = field.per_port_power(irr_per_mw, "P")
-    table = EmitterResponseTable.from_json(Path(argv[1]).read_text(encoding="utf-8"))
+    dye, power_mw, irr_per_mw = DYE, POWER_MW, IRR_PER_MW
+    field, table = load(Path(argv[0]), Path(argv[1]))
     regions = argv[2:] or [d for d in table.detectors if d.startswith("substrate")]
     sel = [table.detectors.index(r) for r in regions]
     print(f"field: {field.source.get('stack', '?')}")

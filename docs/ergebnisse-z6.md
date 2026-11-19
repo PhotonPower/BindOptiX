@@ -89,3 +89,36 @@ Kürzeste Belichtung wie oben, Farbstoffe 5 nm über dem Gold:
    eingeschaltete 10 nm über dem Gold (P), wäre das Verhältnis 0,10/7,2 ≈ 1,4 %, also in der
    Spalte „1 %“ der Tabellen. Ob ein Aptamer beim Schalten den Abstand so ändert, ist offen
    (Messplan M7).
+
+## Reihe über Golddicke und Haftschicht (2026-11-19)
+
+Exporte aus hp-FEM für 15 Stapel (#34): Wasser / Au d / [Ti 2 nm oder Cr 2 nm] / Glas,
+d = 5–50 nm; Ti und Cr nach johnson1974. Annahmen wie oben; `python experiments/z6_echte_karten.py
+DIR`. Erkannte Photonen je s und eingeschaltetem Farbstoff, SIL nimmt das ganze Substrat auf
+(„alle“) bzw. nur NA < 1,333:
+
+| Gold | 5 nm Höhe: alle / < 1,333 | 10 nm | 20 nm |
+| --- | --- | --- | --- |
+| 5 nm | 0,48 / 0,29 | 1,08 / 0,67 | 3,8 / 2,4 |
+| 10 nm | 1,28 / 0,67 | 3,07 / 1,63 | 6,9 / 3,8 |
+| 20 nm | 1,90 / 0,55 | 6,78 / 2,02 | 14,0 / 4,4 |
+| 30 nm | **2,03** / 0,28 | **8,69** / 1,26 | **18,5** / 2,9 |
+| 50 nm | 1,52 / 0,07 | 7,23 / 0,33 | 15,9 / 0,8 |
+| 30 nm + Ti 2 nm | 1,73 / 0,22 | 7,48 / 0,97 | 16,4 / 2,3 |
+| 30 nm + Cr 2 nm | 1,73 / 0,22 | 7,41 / 1,00 | 16,2 / 2,3 |
+
+Bei 2 nm Höhe liegen alle Stapel bei 0,08–0,17 je s (Löschung). Mit Haftschicht für die
+übrigen Dicken siehe Skriptausgabe; Ti und Cr unterscheiden sich um höchstens 8 %.
+
+### Befunde
+
+1. **30 nm Gold geben das stärkste Signal**, wenn die SIL das ganze Substrat aufnimmt; 20 nm
+   liegen 6–24 % darunter, 50 nm 14–25 %. Dünnes Gold (5–10 nm) ist schlechter, obwohl es weniger
+   spiegelt: Es löscht stärker (A_tot bei 20 nm Höhe 27 für 5 nm Gold gegen 3,2 für 30 nm).
+2. **Die NA der SIL entscheidet.** Nimmt sie nur bis NA 1,333 auf, verliert 30 nm Gold einen
+   Faktor 6–7, und dünneres Gold (10–20 nm) wird besser, bleibt aber 3–4-mal unter dem vollen
+   Wert. Eine gedruckte SIL auf dem Substrat sollte deshalb bis NA ≈ 1,45 sammeln.
+3. **Eine Haftschicht von 2 nm kostet bei 30 nm Gold etwa 11–15 %**, bei dünnerem Gold bis knapp 40 %;
+   Ti und Cr sind gleichwertig. Ein molekularer Haftvermittler vermiede diesen Verlust.
+4. Die Volumendaten gelten für geschlossene Filme; die Werte für 5 nm (und eingeschränkt 10 nm)
+   sind deshalb nur grob.
