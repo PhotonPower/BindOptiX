@@ -113,12 +113,12 @@ Bei 2 nm Höhe liegen alle Stapel bei 0,08–0,17 je s (Löschung). Mit Haftschi
 ### Befunde
 
 1. **30 nm Gold geben das stärkste Signal**, wenn die SIL das ganze Substrat aufnimmt; 20 nm
-   liegen 7–25 % darunter, 50 nm 15–25 %. Dünnes Gold (5–10 nm) ist schlechter, obwohl es weniger
+   liegen 6–24 % darunter, 50 nm 14–25 %. Dünnes Gold (5–10 nm) ist schlechter, obwohl es weniger
    spiegelt: Es löscht stärker (A_tot bei 20 nm Höhe 27 für 5 nm Gold gegen 3,2 für 30 nm).
 2. **Die NA der SIL entscheidet.** Nimmt sie nur bis NA 1,333 auf, verliert 30 nm Gold einen
    Faktor 6–7, und dünneres Gold (10–20 nm) wird besser, bleibt aber 3–4-mal unter dem vollen
    Wert. Eine gedruckte SIL auf dem Substrat sollte deshalb bis NA ≈ 1,45 sammeln.
-3. **Eine Haftschicht von 2 nm kostet bei 30 nm Gold etwa 12–15 %**, bei dünnerem Gold bis 35 %;
+3. **Eine Haftschicht von 2 nm kostet bei 30 nm Gold etwa 11–15 %**, bei dünnerem Gold bis knapp 40 %;
    Ti und Cr sind gleichwertig. Ein molekularer Haftvermittler vermiede diesen Verlust.
 4. Die Volumendaten gelten für geschlossene Filme; die Werte für 5 nm (und eingeschränkt 10 nm)
    sind deshalb nur grob.
