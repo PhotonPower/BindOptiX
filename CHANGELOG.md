@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- T4 abgenommen: hp-FEM hat drei exportierte Tabellen (Au-Film, Glas, TiO₂-Wellenleiter)
+  gegen die Referenz geprüft, größte Abweichung von A_tot 3,1e−13 (#23).
+
 - Korrektur T4 (#23): Die Referenz integrierte nur auf der reellen Achse und verlor bei
   verlustfreien Schichten mit geführten Moden (Pole auf der Achse) deren Leistung; sie lieferte
   dort A_rad statt A_tot. Beide Fassungen integrieren jetzt unter der reellen Achse (kausaler
