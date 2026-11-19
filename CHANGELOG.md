@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Z6 mit Karten aus hp-FEM: `experiments/z6_echte_karten.py` rechnet das Photonenbudget mit
+  exportierter Feldkarte (640 nm, Anregung von der Lösungsseite) und Antworttabelle (670 nm,
+  Substrat in drei NA-Bereichen); Ergebnisse in `docs/ergebnisse-z6.md`. D4 um die Anordnung
+  ergänzt. Quelle johnson1972 ergänzt.
+
 - Z2 abgeschlossen: T3–T6 und T42 grün bzw. mit Karten aus hp-FEM abgenommen.
 
 - T3 abgenommen: hp-FEM hat zwölf exportierte Feldkarten (Au-Film 50 nm, 30 nm, ohne Film;
