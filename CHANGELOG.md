@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Z12 Teil 2: Vorschlag `docs/vorschlaege/rtt-fusion-datenknoten.md` für RTT-Fusion (D13
+  übernehmen, Datenknoten `bindoptix.signal`, Meta-Block Zeitschleife, Prüfungen).
+
 - Z12 Teil 1: `EmitterEnsemble.from_tracker` (Port Q aus dem `DipoleAndDistanceTracker` von
   BioOptoMD), `mix_ensembles` (Σ_s f_s Q_s je Stichprobe, DP7) und `spot_rates_s` (Rate je
   Spot und Zeit aus Port B); Testfall T43. Der T3-Kartentest prüft q, wenn die Karte es trägt
