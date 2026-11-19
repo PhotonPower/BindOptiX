@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Z2 abgeschlossen: T3–T6 und T42 grün bzw. mit Karten aus hp-FEM abgenommen.
+
 - T3 abgenommen: hp-FEM hat zwölf exportierte Feldkarten (Au-Film 50 nm, 30 nm, ohne Film;
   p, s und zirkular) gegen die Referenz geprüft, größte Abweichung 5e−15 (#23).
 
