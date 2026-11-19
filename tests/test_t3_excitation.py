@@ -115,7 +115,7 @@ def test_t3_exported_map_matches_reference() -> None:
     Stack in ``source["stack"]`` as for T4 (top interface at z = 0, layers below), incidence
     from the substrate (k̂_z > 0), ``irradiance_w_m2``, ``k_hat`` and ``polarisation`` set. The
     global phase is fitted (the point of zero phase is free); grid nodes within 1 pm of an
-    interface are left out (E_z jumps there).
+    interface are left out (E_z jumps there). If the map carries q, it is checked too (DP2).
     """
     m = FieldMap.from_json(Path(str(MAP)).read_text(encoding="utf-8"))
     assert m.irradiance_w_m2 is not None and m.k_hat is not None and m.polarisation is not None
@@ -140,3 +140,15 @@ def test_t3_exported_map_matches_reference() -> None:
     c = np.vdot(ref, e) / np.vdot(ref, ref)
     assert abs(c) == pytest.approx(1.0, rel=1e-6)
     np.testing.assert_allclose(e, c * ref, rtol=1e-6, atol=1e-6 * np.abs(ref).max())
+    if m.q_w_m3 is not None:
+        # DP2: absorbed power density q = (ω ε₀/2) Im ε |E|² = k₀/(2Z₀) Im ε |E|² (jackson1999,
+        # Poynting); its integral over the film is the absorbed power of the energy balance above.
+        z = pts[keep, 2]
+        eps = np.full(z.size, cover**2 + 0j)
+        for (n, _), top, bottom in zip(layers, bounds[:-1], bounds[1:], strict=True):
+            eps[(z < top) & (z > bottom)] = n**2
+        eps[z < bounds[-1]] = sub**2
+        k0 = 2.0 * math.pi / (lam * 1e-6)
+        q_ref = 0.5 * k0 / Z0 * eps.imag * np.sum(np.abs(ref) ** 2, axis=1)
+        q = m.q_w_m3.reshape(-1)[keep]
+        np.testing.assert_allclose(q, q_ref, rtol=1e-6, atol=1e-6 * q_ref.max())
