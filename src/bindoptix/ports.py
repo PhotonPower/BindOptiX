@@ -8,7 +8,9 @@ CliffordBem, the chain of pilot K5) and are read, checked, interpolated and eval
   normalised to the free dipole in the host medium at that position. For a unit orientation μ̂ the
   power is a = μ̂ᵀ A μ̂.
 - :class:`FieldMap` (port F): complex E on a regular grid per 1 mW incident power, time factor
-  e^(−iωt); optionally absorbed power density and temperature rise.
+  e^(−iωt); optionally absorbed power density and temperature rise. Maps of the solvers may
+  instead be normalised to the irradiance of an incident plane wave and carry its direction,
+  polarisation and the medium per grid point (issue #23).
 
 All positions are in the sensor frame (µm, docs/konventionen.md). Interpolation is trilinear;
 it is a convex combination, so it keeps symmetric tensors symmetric and positive semidefinite.
@@ -16,9 +18,10 @@ it is a convex combination, so it keeps symmetric tensors symmetric and positive
 
 from __future__ import annotations
 
+import json
 import math
 from collections.abc import Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any
 
 import numpy as np
@@ -263,19 +266,63 @@ class EmitterResponseTable:
         )
 
 
+PORT_STATUSES = ("L", "K", "P")
+UNIT_TOL = 1e-9
+
+# Metadata hp-FEM writes as JSON strings into ``source`` until its writer uses the keys of the
+# format (issue #23); the reader takes them from there if the key is absent from the file.
+_SOURCE_FALLBACK = ("irradiance_w_m2", "k_hat", "polarisation", "medium", "media")
+
+
+def _unit_vector(name: str, v: ArrayLike, dtype: type) -> NDArray[Any]:
+    a: NDArray[Any] = np.asarray(v, dtype=dtype)
+    if a.shape != (3,) or not np.isfinite(a).all():
+        raise ValueError(f"{name} must be a finite vector of shape (3,)")
+    if abs(float(np.linalg.norm(a)) - 1.0) > UNIT_TOL:
+        raise ValueError(f"{name} must have unit norm")
+    return a
+
+
+def _complex_from_json(v: Any) -> ComplexArray:
+    """[[re, im], …] or [x, …] → complex array."""
+    return np.array([complex(x[0], x[1]) if isinstance(x, list) else complex(x) for x in v])
+
+
+def _array_from_json(v: Any, dtype: type) -> NDArray[Any]:
+    """Nested list or :func:`encode_array` record → array."""
+    if isinstance(v, dict):
+        return np.asarray(decode_array(v), dtype=dtype)
+    return np.asarray(v, dtype=dtype)
+
+
 @dataclass(frozen=True)
 class FieldMap:
-    """Port F: excitation field on a regular grid (ADR draft, section 1).
+    """Port F: excitation field on a regular grid (ADR draft, section 1; issue #23).
+
+    Normalisation: either per 1 mW incident power at the input port of the fusion (the form
+    used in BindOptiX), or, as the light solvers compute it, for a plane wave of irradiance
+    I₀ = n_inc |E₀|² / (2 Z₀) [W/m²], measured perpendicular to the beam in the incidence
+    medium (``irradiance_w_m2`` set). The second form is converted with :meth:`per_port_power`
+    and the local irradiance per mW at the spot, which comes from the illumination path (K5
+    chain) or is a placeholder.
 
     Attributes:
         grid: positions [µm, sensor frame].
         wavelength_um: excitation wavelength (vacuum) [µm].
-        e: complex field (nx, ny, nz, 3) [V/m] for 1 mW incident power, factor e^(−iωt).
+        e: complex field (nx, ny, nz, 3) [V/m] for 1 mW incident power (or for I₀), factor
+            e^(−iωt).
         nonlinear: computed with temperature feedback; then valid only at ``power_mw``.
         power_mw: incident power the map was computed for (required if nonlinear).
-        q_w_m3: absorbed power density per mW, shape (nx, ny, nz), optional.
-        delta_t_k: temperature rise per mW, shape (nx, ny, nz), optional.
-        source: provenance.
+        q_w_m3: absorbed power density per mW (or for I₀), shape (nx, ny, nz), optional.
+        delta_t_k: temperature rise per mW (or for I₀), shape (nx, ny, nz), optional.
+        source: provenance; ``phase_reference`` names the point of zero phase.
+        irradiance_w_m2: I₀ of a map normalised to the incident irradiance, None if per mW.
+        k_hat: unit wave vector of the incident plane wave in the incidence medium (sensor
+            frame); from the solution side it points to −z.
+        polarisation: complex unit polarisation vector ê of the incident wave, ⟂ k̂.
+        medium: integer medium index per grid point (nx, ny, nz), indices into ``media``.
+            Nodes on an interface hold the limit from the side they are labelled with.
+        media: names of the media.
     """
 
     grid: RegularGrid
@@ -286,6 +333,11 @@ class FieldMap:
     q_w_m3: FloatArray | None = None
     delta_t_k: FloatArray | None = None
     source: dict[str, str] = field(default_factory=dict)
+    irradiance_w_m2: float | None = None
+    k_hat: FloatArray | None = None
+    polarisation: ComplexArray | None = None
+    medium: NDArray[np.int64] | None = None
+    media: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         if not (math.isfinite(self.wavelength_um) and self.wavelength_um > 0.0):
@@ -303,17 +355,115 @@ class FieldMap:
                 if arr.shape != self.grid.shape or not np.isfinite(arr).all():
                     raise ValueError(f"{name} must be finite with the grid shape")
                 object.__setattr__(self, name, arr)
+        i0 = self.irradiance_w_m2
+        if i0 is not None:
+            if not (math.isfinite(i0) and i0 > 0.0):
+                raise ValueError("irradiance_w_m2 must be finite and positive")
+            if self.nonlinear:
+                raise ValueError("a nonlinear map must be normalised per mW at the port")
+            object.__setattr__(self, "irradiance_w_m2", float(i0))
+        if self.k_hat is not None:
+            object.__setattr__(self, "k_hat", _unit_vector("k_hat", self.k_hat, np.float64))
+        if self.polarisation is not None:
+            pol = _unit_vector("polarisation", self.polarisation, np.complex128)
+            if self.k_hat is not None and abs(np.dot(self.k_hat, pol)) > UNIT_TOL:
+                raise ValueError("polarisation must be perpendicular to k_hat")
+            object.__setattr__(self, "polarisation", pol)
+        self._check_medium()
+
+    def _check_medium(self) -> None:
+        media = tuple(str(m) for m in self.media)
+        object.__setattr__(self, "media", media)
+        if self.medium is None:
+            if media:
+                raise ValueError("media given without medium")
+            return
+        m = np.asarray(self.medium)
+        if not np.issubdtype(m.dtype, np.integer):
+            raise ValueError("medium must be an integer array")
+        if m.shape != self.grid.shape:
+            raise ValueError("medium must have the grid shape")
+        if len(set(media)) != len(media):
+            raise ValueError("media names must be unique")
+        if m.size and (m.min() < 0 or m.max() >= len(media)):
+            raise ValueError("medium index out of range of media")
+        object.__setattr__(self, "medium", m.astype(np.int64))
+
+    @property
+    def is_port_normalised(self) -> bool:
+        """True if E is per 1 mW at the input port (usable with :meth:`e_at`)."""
+        return self.irradiance_w_m2 is None
+
+    def per_port_power(
+        self, irradiance_w_m2_per_mw: float, status: str, reference: str = ""
+    ) -> FieldMap:
+        """Map per 1 mW at the input port from a map normalised to I₀.
+
+        ``irradiance_w_m2_per_mw``: irradiance of the incident wave at the spot (perpendicular
+        to the beam, as I₀) per mW at the input port; status L, K or P, reference required for
+        L and K. E scales with √(I/I₀), q and ΔT with I/I₀. I₀ moves to the provenance as
+        ``converted_from_irradiance_w_m2``.
+        """
+        if self.irradiance_w_m2 is None:
+            raise ValueError("map is already normalised per mW at the port")
+        v = irradiance_w_m2_per_mw
+        if not (math.isfinite(v) and v > 0.0):
+            raise ValueError("irradiance_w_m2_per_mw must be finite and positive")
+        if status not in PORT_STATUSES:
+            raise ValueError(f"status must be one of {PORT_STATUSES}")
+        if status in ("L", "K") and not reference:
+            raise ValueError("literature values and calibrations need a reference")
+        f = v / self.irradiance_w_m2
+        src = {k: s for k, s in self.source.items() if k != "irradiance_w_m2"}
+        src.update(
+            {
+                "converted_from_irradiance_w_m2": repr(self.irradiance_w_m2),
+                "port_irradiance_w_m2_per_mw": repr(float(v)),
+                "port_irradiance_status": status,
+                "port_irradiance_reference": reference,
+            }
+        )
+        return replace(
+            self,
+            e=self.e * math.sqrt(f),
+            q_w_m3=None if self.q_w_m3 is None else self.q_w_m3 * f,
+            delta_t_k=None if self.delta_t_k is None else self.delta_t_k * f,
+            source=src,
+            irradiance_w_m2=None,
+        )
 
     def _scale(self, power_mw: float) -> float:
+        if self.irradiance_w_m2 is not None:
+            raise ValueError("map is normalised to I₀; convert it with per_port_power first")
         if not (math.isfinite(power_mw) and power_mw >= 0.0):
             raise ValueError("power_mw must be finite and non-negative")
         if self.nonlinear and power_mw != self.power_mw:
             raise ValueError(f"nonlinear map valid only at {self.power_mw} mW")
         return power_mw
 
+    def _single_medium(self, points_um: ArrayLike) -> NDArray[np.int64] | None:
+        """Medium index per point; rejects points whose interpolation spans several media."""
+        if self.medium is None:
+            return None
+        c, w = self.grid.weights(points_um)
+        lab = self.medium.ravel()[c]
+        used = w > 0.0
+        first = lab[np.arange(lab.shape[0]), np.argmax(used, axis=1)]
+        if np.any(used & (lab != first[:, None])):
+            raise ValueError("points interpolate across media; refine the grid at the interface")
+        return np.asarray(first, dtype=np.int64)
+
+    def medium_at(self, points_um: ArrayLike) -> NDArray[np.str_]:
+        """Medium names at the points (N,)."""
+        idx = self._single_medium(points_um)
+        if idx is None:
+            raise ValueError("map has no medium")
+        return np.asarray(self.media, dtype=np.str_)[idx]
+
     def e_at(self, points_um: ArrayLike, power_mw: float = 1.0) -> ComplexArray:
         """Interpolated field (N, 3) at the given incident power [V/m]."""
         p = self._scale(power_mw)
+        self._single_medium(points_um)
         e = self.grid.interpolate(self.e, points_um)
         return np.asarray(e * math.sqrt(p), dtype=np.complex128)
 
@@ -324,6 +474,9 @@ class FieldMap:
         return np.asarray(np.abs(np.einsum("ni,ni->n", m, e)) ** 2, dtype=np.float64)
 
     def to_json(self) -> str:
+        def opt(a: np.ndarray[Any, Any] | None) -> dict[str, Any] | None:
+            return None if a is None else encode_array(a)
+
         return to_json(
             "FieldMap",
             {
@@ -332,24 +485,61 @@ class FieldMap:
                 "e": encode_array(self.e),
                 "nonlinear": self.nonlinear,
                 "power_mw": self.power_mw,
-                "q_w_m3": None if self.q_w_m3 is None else encode_array(self.q_w_m3),
-                "delta_t_k": None if self.delta_t_k is None else encode_array(self.delta_t_k),
+                "q_w_m3": opt(self.q_w_m3),
+                "delta_t_k": opt(self.delta_t_k),
                 "source": dict(self.source),
+                "irradiance_w_m2": self.irradiance_w_m2,
+                "k_hat": opt(self.k_hat),
+                "polarisation": opt(self.polarisation),
+                "medium": opt(self.medium),
+                "media": list(self.media),
             },
         )
 
     @classmethod
     def from_json(cls, text: str) -> FieldMap:
+        """Read a map; files without the metadata keys (before issue #23) load unchanged.
+
+        A metadata key absent from the file is taken from ``source`` (JSON string) if there.
+        """
         d = load_json(text, "FieldMap")
+        source = {str(k): str(v) for k, v in d["source"].items()}
+        meta: dict[str, Any] = {}
+        for key in _SOURCE_FALLBACK:
+            if key in d:
+                meta[key] = d[key]
+            elif key in source:
+                meta[key] = json.loads(source[key])
+
+        def arr(key: str) -> Any:
+            v = d.get(key)
+            return None if v is None else decode_array(v)
+
+        def meta_arr(key: str, dtype: type) -> Any:
+            v = meta.get(key)
+            if v is None:
+                return None
+            if key in d:
+                return decode_array(v)
+            if dtype is np.complex128:
+                return _complex_from_json(v)
+            return _array_from_json(v, dtype)
+
+        i0 = meta.get("irradiance_w_m2")
         return cls(
             grid=RegularGrid.from_data(d["grid"]),
             wavelength_um=float(d["wavelength_um"]),
             e=decode_array(d["e"]),
             nonlinear=bool(d["nonlinear"]),
             power_mw=None if d["power_mw"] is None else float(d["power_mw"]),
-            q_w_m3=None if d["q_w_m3"] is None else decode_array(d["q_w_m3"]),
-            delta_t_k=None if d["delta_t_k"] is None else decode_array(d["delta_t_k"]),
-            source={str(k): str(v) for k, v in d["source"].items()},
+            q_w_m3=arr("q_w_m3"),
+            delta_t_k=arr("delta_t_k"),
+            source=source,
+            irradiance_w_m2=None if i0 is None else float(i0),
+            k_hat=meta_arr("k_hat", np.float64),
+            polarisation=meta_arr("polarisation", np.complex128),
+            medium=meta_arr("medium", np.int64),
+            media=tuple(str(m) for m in meta.get("media") or ()),
         )
 
 
@@ -365,8 +555,18 @@ class FieldMapStack:
         lam = {m.wavelength_um for m in self.maps}
         if len(lam) != 1:
             raise ValueError("all maps must have the same wavelength")
+        if len({m.irradiance_w_m2 for m in self.maps}) != 1:
+            raise ValueError("all maps must have the same normalisation")
         order = sorted(self.maps, key=lambda m: m.grid.cell_volume_um3)
         object.__setattr__(self, "maps", tuple(order))
+
+    def per_port_power(
+        self, irradiance_w_m2_per_mw: float, status: str, reference: str = ""
+    ) -> FieldMapStack:
+        """All maps converted with :meth:`FieldMap.per_port_power`."""
+        return FieldMapStack(
+            tuple(m.per_port_power(irradiance_w_m2_per_mw, status, reference) for m in self.maps)
+        )
 
     def select(self, points_um: ArrayLike) -> NDArray[np.intp]:
         """Index of the map used for each point (finest containing), −1 if none."""

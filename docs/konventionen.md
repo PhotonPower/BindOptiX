@@ -17,7 +17,15 @@ Verbindlich; an allen Grenzen die von Raytatouille und der Fusion (RTT-Fusion
 - **Schwerkraft:** als Vektor im Sensorsystem angegeben (Einbaulage), nie implizit −z.
 - **Felder** (Port F): ∝ exp(i(k·r − ωt)), Zeitfaktor e^(−iωt), normiert auf 1 mW einfallende
   Leistung am Eingangsport der Fusion. Löser mit anderem Zeitfaktor (SpeckleBem e^(+jωt)) werden
-  im Adapter konjugiert.
+  im Adapter konjugiert. Die Löser dürfen stattdessen auf die Bestrahlungsstärke I₀ einer
+  einfallenden ebenen Welle normieren (`irradiance_w_m2`, W/m², senkrecht zum Strahl im
+  Einfallsmedium, I₀ = n_inc |E₀|²/(2 Z₀)); BindOptiX rechnet solche Karten mit der lokalen
+  Bestrahlungsstärke am Spot je mW am Eingangsport um (`FieldMap.per_port_power`, mit Status
+  L/K/P). Dazu je Karte die Einfallsrichtung `k_hat` und die Polarisation `polarisation`
+  im Sensorsystem; Anregung im Aufbau von der Lösungsseite (k̂ zeigt nach −z). Die Phase ist
+  auf (0, 0, 0) bezogen (`phase_reference`). Medium je Gitterpunkt als `medium`/`media`;
+  Knoten auf einer Grenzfläche tragen den Grenzwert der Seite, deren Medium sie tragen, und
+  über Medien hinweg wird nicht interpoliert (#23).
 - **Zufall:** nur mit explizitem Seed; Monte-Carlo-Ergebnisse immer mit Standardfehler.
 - **Ergebnisse:** Format `raytatouille-result` (ADR 0023) für Kennzahlen und Tabellen; Felder und
   Zeitreihen als reguläre Gitter (`.npy`, HDF5) mit Metadaten nach demselben Schema.

@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Z2, Port F (#23): `FieldMap` mit Normierung auf die Bestrahlungsstärke einer einfallenden
+  ebenen Welle (`irradiance_w_m2`) und Umrechnung je mW am Eingangsport
+  (`per_port_power`, Status L/K/P), Einfallsrichtung `k_hat`, Polarisation `polarisation`,
+  Medium je Gitterpunkt `medium`/`media` mit Ablehnung der Interpolation über Medien,
+  `medium_at`; Dateiformat abwärtskompatibel, Reader übernimmt die Schlüssel übergangsweise
+  aus `source`; Konventionen und ADR-Entwurf ergänzt; Testfall T42.
+
 - Z6, Teil 2: `bindoptix.background` (Flächenquellen wie Gold-Photolumineszenz, 2PP-Lack und
   Glas als detektierte Photonen je µm²·s·mW über das Feld oder nur auf den Spots, Terme für
   `imaging.render`; Autofluoreszenz der Zellen aus der Bestrahlung nach F und der Sammlung
