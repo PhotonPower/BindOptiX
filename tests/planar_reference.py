@@ -30,6 +30,10 @@ Closed forms for the checks:
 * :func:`quasistatic_rates`: leading term for k₁z → 0 above an absorbing half-space from the
   electrostatic image β p, β = (ε₂ − ε₁)/(ε₂ + ε₁).
 * :func:`lukosz_asymptotic`: Lukosz and Kunz (4.4)–(4.6) for a lossless half-space, k₁z ≫ 1.
+
+Radiation patterns (T5): :func:`substrate_pattern` (angular spectrum and transmission of the
+stack), :func:`cover_pattern` (lukosz1979 (3.21), (3.22)), :func:`radiated_powers`, and the
+closed forms :func:`lukosz_half_space_pattern` (lukosz1979 (3.7), (3.8), (3.11)–(3.15)).
 """
 
 from __future__ import annotations
@@ -303,3 +307,146 @@ def lukosz_asymptotic(n: float, k1z: float) -> tuple[float, float]:
     perp = 1.0 + 3.0 * r * (math.sin(zb) / zb**3 - math.cos(zb) / zb**2)
     par = 0.5 * (1.0 + perp) - 3.0 * r * math.sin(zb) / zb
     return perp, par
+
+
+# --- radiation patterns (T5) -----------------------------------------------------------------
+
+
+def _stack_coefficients(
+    kz: Sequence[complex], eps: Sequence[complex], thick: Sequence[float]
+) -> tuple[complex, complex, complex, complex]:
+    """(r_s, r_p, t_s, t_p) of the stack seen from medium 0, Airy recursion.
+
+    r_p as in lukosz1977 (2.35) (magnetic-field amplitudes); t_s and t_p for the electric field
+    of the wave transmitted into the last medium (t_p^E = (n₀/n_N) t_p^H).
+    """
+
+    def pair(i: int, j: int) -> tuple[complex, complex]:
+        rs = (kz[i] - kz[j]) / (kz[i] + kz[j])
+        rp = (eps[j] * kz[i] - eps[i] * kz[j]) / (eps[j] * kz[i] + eps[i] * kz[j])
+        return rs, rp
+
+    n = len(kz) - 1
+    rs, rp = pair(n - 1, n)
+    ts, tp = 1.0 + rs, 1.0 + rp
+    for j in range(n - 1, 0, -1):
+        s, p = pair(j - 1, j)
+        ph = cmath.exp(1j * kz[j] * thick[j - 1])
+        ds, dp = 1.0 + s * rs * ph * ph, 1.0 + p * rp * ph * ph
+        ts, tp = (1.0 + s) * ts * ph / ds, (1.0 + p) * tp * ph / dp
+        rs, rp = (s + rs * ph * ph) / ds, (p + rp * ph * ph) / dp
+    return rs, rp, ts, tp * cmath.sqrt(eps[0]) / cmath.sqrt(eps[n])
+
+
+def _kz_list(
+    n1: float, layers: Sequence[Layer], substrate: complex, k0: float, kpar: complex
+) -> tuple[list[complex], list[complex], list[float]]:
+    eps = [complex(n1**2)] + [complex(n) ** 2 for n, _ in layers] + [complex(substrate) ** 2]
+    kz = []
+    for e in eps:
+        w = cmath.sqrt(e * k0 * k0 - kpar * kpar)
+        kz.append(w if w.imag >= 0.0 else -w)
+    return kz, eps, [d for _, d in layers]
+
+
+def substrate_pattern(
+    n1: float, layers: Sequence[Layer], substrate: float, wavelength: float, z: float, alpha: float
+) -> tuple[float, float, float]:
+    """Radiation into a lossless substrate per solid angle, normalised as in lukosz1979 (2.8).
+
+    Angle α from −z in the substrate. Returns the coefficients (a_⊥, a_s, a_p) of
+    P_⊥ = a_⊥ (perpendicular dipole), P_∥ = a_s sin²φ + a_p cos²φ (dipole along x).
+
+    From the angular spectrum of the dipole and the transmission of the stack: the downward wave
+    k_∥ = k₃ sin α of the dipole has the s and p amplitudes ∝ (p̂·ŝ), (p̂·ê_p) e^{ik_z1 z} / k_z1
+    with ê_p = (k_z1 cos φ, k_z1 sin φ, k_∥)/k₁; the far field by stationary phase gives
+    P = (3/8π) (n₃³/n₁) k₀² cos²α |t|² |p̂·ê|² e^{−2 Im(k_z1) z} / |k_z1|². For a half-space this
+    is lukosz1979 (3.7), (3.8) below and (3.11)–(3.15) above the critical angle.
+    """
+    k0 = 2.0 * math.pi / wavelength
+    k1 = n1 * k0
+    kpar = substrate * k0 * math.sin(alpha)
+    kz, eps, thick = _kz_list(n1, layers, substrate, k0, kpar)
+    _, _, ts, tp = _stack_coefficients(kz, eps, thick)
+    kz1 = kz[0]
+    common = (
+        3.0
+        / (8.0 * math.pi)
+        * substrate**3
+        / n1
+        * k0**2
+        * math.cos(alpha) ** 2
+        * math.exp(-2.0 * kz1.imag * z)
+        / abs(kz1) ** 2
+    )
+    a_perp = common * abs(tp) ** 2 * abs(kpar / k1) ** 2
+    a_s = common * abs(ts) ** 2
+    a_p = common * abs(tp) ** 2 * abs(kz1 / k1) ** 2
+    return a_perp, a_s, a_p
+
+
+def cover_pattern(
+    n1: float,
+    layers: Sequence[Layer],
+    substrate: complex,
+    wavelength: float,
+    z: float,
+    alpha: float,
+) -> tuple[float, float, float]:
+    """Radiation into the cover per solid angle, lukosz1979 (3.21), (3.22) for the electric dipole
+    ((m) → (e), (s) ↔ (p)); α from +z. Returns (a_⊥, a_s, a_p) as in :func:`substrate_pattern`.
+    """
+    k0 = 2.0 * math.pi / wavelength
+    kpar = n1 * k0 * math.sin(alpha)
+    kz, eps, thick = _kz_list(n1, layers, substrate, k0, kpar)
+    rs, rp, _, _ = _stack_coefficients(kz, eps, thick)
+    ph = cmath.exp(2j * kz[0] * z)
+    c = 3.0 / (8.0 * math.pi)
+    a_perp = c * math.sin(alpha) ** 2 * (1.0 + abs(rp) ** 2 + 2.0 * (rp * ph).real)
+    a_p = c * math.cos(alpha) ** 2 * (1.0 + abs(rp) ** 2 - 2.0 * (rp * ph).real)
+    a_s = c * (1.0 + abs(rs) ** 2 + 2.0 * (rs * ph).real)
+    return a_perp, a_s, a_p
+
+
+def radiated_powers(
+    n1: float, layers: Sequence[Layer], substrate: float, wavelength: float, z: float
+) -> tuple[tuple[float, float], tuple[float, float]]:
+    """((cover ⊥, cover ∥), (substrate ⊥, substrate ∥)), integrated over the half-spaces.
+
+    φ integrals: 2π for ⊥, π for sin²φ and cos²φ; the cross term of (3.21) vanishes.
+    """
+    out = []
+    for pattern, n_side in ((cover_pattern, n1), (substrate_pattern, substrate)):
+        crit = math.asin(min(1.0, n1 / n_side)) if pattern is substrate_pattern else 0.0
+        edges = sorted({0.0, crit, 0.5 * math.pi})
+        segs = [s for a, b in pairwise(edges) for s in _segments(a, b, 0.005)]
+
+        def perp(a: float, f: Callable[..., tuple[float, float, float]] = pattern) -> float:
+            return 2.0 * math.pi * f(n1, layers, substrate, wavelength, z, a)[0] * math.sin(a)
+
+        def par(a: float, f: Callable[..., tuple[float, float, float]] = pattern) -> float:
+            v = f(n1, layers, substrate, wavelength, z, a)
+            return math.pi * (v[1] + v[2]) * math.sin(a)
+
+        out.append((_integrate(perp, segs), _integrate(par, segs)))
+    return (out[0][0], out[0][1]), (out[1][0], out[1][1])
+
+
+def lukosz_half_space_pattern(
+    n1: float, n2: float, wavelength: float, z: float, alpha: float
+) -> tuple[float, float, float]:
+    """lukosz1979 (3.7), (3.8), (3.11)–(3.15): (a_⊥, a_s, a_p) into a dielectric half-space."""
+    n = n2 / n1
+    lam1 = wavelength / n1
+    s2, c2 = math.sin(alpha), math.cos(alpha)
+    if n * s2 <= 1.0:
+        c1 = math.sqrt(1.0 - (n * s2) ** 2)
+        g = 3.0 / (2.0 * math.pi) * n**3 * c2**2
+        a_perp = g * (n * s2) ** 2 / (n * c1 + c2) ** 2  # (3.7) at Θ = 0, sin α₁ = n sin α₂
+        a_s = g / (c1 + n * c2) ** 2
+        a_p = g * c1**2 / (n * c1 + c2) ** 2
+        return a_perp, a_s, a_p
+    dz = lam1 / (2.0 * math.pi) / math.sqrt(n * n * s2 * s2 - 1.0)
+    f_s = 3.0 / (2.0 * math.pi) * n**3 / (n * n - 1.0) * c2**2 * math.exp(-2.0 * z / dz)
+    f_p = f_s / ((n * n + 1.0) * s2 * s2 - 1.0)
+    return f_p * n * n * s2 * s2, f_s, f_p * (n * n * s2 * s2 - 1.0)

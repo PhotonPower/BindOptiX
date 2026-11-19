@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Z2, T5 (Referenz): Abstrahlung ins Deckmedium und ins Substrat in `tests/planar_reference.py`
+  (Winkelspektrum und Transmission des Stapels; Deckmedium nach Lukosz III), geprüft gegen die
+  geschlossenen Ausdrücke von Lukosz III für den Halbraum, die Energiebilanz mit A_tot aus T4
+  und SPCE-Winkel = SPR-Winkel (Lakowicz); Vergleich mit exportierten Tabellen über
+  `BINDOPTIX_T5_TABLE`. Quelle lukosz1979 ergänzt, lakowicz2004 gelesen.
+
 - T4 abgenommen: hp-FEM hat drei exportierte Tabellen (Au-Film, Glas, TiO₂-Wellenleiter)
   gegen die Referenz geprüft, größte Abweichung von A_tot 3,1e−13 (#23).
 
