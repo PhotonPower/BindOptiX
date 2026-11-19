@@ -10,8 +10,8 @@ prüfen).
 | berg1993 | H. C. Berg, *Random Walks in Biology*, Princeton University Press 1993 | Z | Z3, T7, T10: Diffusion, Einfang an Wänden |
 | lovely1975 | P. S. Lovely, F. W. Dahlquist, „Statistical measures of bacterial motility and chemotaxis“, J. Theor. Biol. 50 (1975) 477–496 | Z | T9: Run-and-Tumble |
 | mason1924 | M. Mason, W. Weaver, „The settling of small particles in a fluid“, Phys. Rev. 23 (1924) 412–426 | Z | T8: Sedimentation |
-| chance1978 | R. R. Chance, A. Prock, R. Silbey, „Molecular fluorescence and energy transfer near interfaces“, Adv. Chem. Phys. 37 (1978) 1–65 | Z | T4, DP4: Zerfallsraten am Schichtstapel |
-| lukosz1977 | W. Lukosz, R. E. Kunz, „Light emission by magnetic and electric dipoles close to a plane interface. I. Total radiated power“, J. Opt. Soc. Am. 67 (1977) 1607–1615 | Z | T4, T5, DP4, DP5 |
+| chance1978 | R. R. Chance, A. Prock, R. Silbey, „Molecular fluorescence and energy transfer near interfaces“, Adv. Chem. Phys. 37 (1978) 1–65 | V (Abschn. II.A, III.C.1) | T4, DP4: Zerfallsraten am Schichtstapel, Gl. (2.15)–(2.17), (2.27)–(2.29), (3.27b), (3.28) |
+| lukosz1977 | W. Lukosz, R. E. Kunz, „Light emission by magnetic and electric dipoles close to a plane interface. I. Total radiated power“, J. Opt. Soc. Am. 67 (1977) 1607–1615 | V (Abschn. II–IV) | T4: Gl. (2.34), (2.35), (3.15)–(3.17), (4.4)–(4.6); T5, DP4, DP5 |
 | lakowicz2004 | J. R. Lakowicz, „Radiative decay engineering 3. Surface plasmon-coupled directional emission“, Anal. Biochem. 324 (2004) 153–169 | Z | T5, DP5: SPCE |
 | anger2006 | P. Anger, P. Bharadwaj, L. Novotny, „Enhancement and quenching of single-molecule fluorescence“, Phys. Rev. Lett. 96 (2006) 113002 | Z | Z6, T18: Quantenausbeute nahe Metall |
 | novotny2012 | L. Novotny, B. Hecht, *Principles of Nano-Optics*, 2. Aufl., Cambridge University Press 2012 | Z | ADR-Entwurf Datenports: Dipolleistung, Green-Tensor |
@@ -33,3 +33,4 @@ prüfen).
 | boyd1986 | G. T. Boyd, Z. H. Yu, Y. R. Shen, „Photoinduced luminescence from the noble metals and its enhancement on roughened surfaces“, Phys. Rev. B 33 (1986) 7923–7936 | Z | Z6 Untergrund: Photolumineszenz des Golds, Rauheit (vorgesehen) |
 | schmid2019 | M. Schmid, D. Ludescher, H. Giessen, „Optical properties of photoresists for femtosecond 3D printing: refractive index, extinction, luminescence-dose dependence, aging, heat treatment and comparison between 1-photon and 2-photon exposure“, Opt. Mater. Express 9 (2019) 4564 | Z | Z6 Untergrund: Autofluoreszenz des 2PP-Lacks (vorgesehen) |
 | mihalcescu2015 | I. Mihalcescu, M. Van-Melle Gateau, B. Chelli, C. Pinel, J.-L. Ravanat, „Green autofluorescence, a double edged monitoring tool for bacterial growth and activity in micro-plates“, Phys. Biol. 12 (2015) 066016 | Z | Z6 Untergrund: Autofluoreszenz von Bakterien (vorgesehen) |
+| jackson1999 | J. D. Jackson, *Classical Electrodynamics*, 3. Aufl., Wiley 1999 | Z | T4: Feld eines schwingenden Dipols (Bilddipol am idealen Spiegel, ohne Gleichungsnummer) |

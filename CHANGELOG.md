@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Z2, T4 (Referenz): `tests/planar_reference.py` mit der Gesamtleistung eines Dipols über
+  einem Schichtstapel nach Chance–Prock–Silbey und nach Lukosz–Kunz (zwei getrennt
+  geschriebene Rechnungen, nur im Test), geprüft gegen Bilddipol, quasistatische Bildladung,
+  Asymptotik nach Lukosz–Kunz und Filmgrenzfälle; Vergleich mit einer exportierten Tabelle
+  über `BINDOPTIX_T4_TABLE` (übersprungen, solange keine vorliegt). Volltext von chance1978
+  und lukosz1977 gelesen (Status V), jackson1999 ergänzt.
+
 - Z2, Port F (#23): `FieldMap` mit Normierung auf die Bestrahlungsstärke einer einfallenden
   ebenen Welle (`irradiance_w_m2`) und Umrechnung je mW am Eingangsport
   (`per_port_power`, Status L/K/P), Einfallsrichtung `k_hat`, Polarisation `polarisation`,
