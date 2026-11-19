@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- D4 entschieden: 30 nm Gold, SIL bis NA ≈ 1,45, möglichst keine Metall-Haftschicht (nach der
+  Reihe in `docs/ergebnisse-z6.md`).
+
 - Z6: Reihe über Golddicke (5–50 nm) und Haftschicht (Ti, Cr) mit Exporten aus hp-FEM (#34);
   `experiments/z6_echte_karten.py DIR` vergleicht alle Stapel. 30 nm Gold geben das stärkste
   Signal, wenn die SIL bis zu hoher NA sammelt (`docs/ergebnisse-z6.md`). Quelle johnson1974.
