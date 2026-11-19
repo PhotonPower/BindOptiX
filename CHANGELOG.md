@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Z2, T3 (Referenz): Feld einer ebenen Welle aus dem Substrat durch einen Schichtstapel in
+  `tests/planar_reference.py` (normiert auf I₀, beliebige Richtung und Polarisation), geprüft
+  gegen das homogene Medium, die Formeln von Raether für Reflexion und Feldüberhöhung am
+  Dreischichtsystem und die Energiebilanz; Vergleich mit exportierten Feldkarten über
+  `BINDOPTIX_T3_MAP`. Quellen kretschmann1968 und raether1988 ergänzt.
+
 - T5 abgenommen: hp-FEM hat A_rad und A_det der drei Tabellen aus T4 gegen die Referenz
   geprüft, größte Abweichung 7,3e−8 (Au-Film), sonst ≤ 2,1e−14 (#23).
 

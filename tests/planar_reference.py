@@ -1,4 +1,4 @@
-"""Independent reference: total power of an electric dipole above a planar stack (T4).
+"""Independent reference: dipole above a planar stack (T4, T5), plane wave through it (T3).
 
 Test code only (AGENTS.md rule 4: no optics in the package). Two separately written forms of the
 same classical result, normalised to the free dipole in the cover medium 1 (lossless, index
@@ -34,6 +34,9 @@ Closed forms for the checks:
 Radiation patterns (T5): :func:`substrate_pattern` (angular spectrum and transmission of the
 stack), :func:`cover_pattern` (lukosz1979 (3.21), (3.22)), :func:`radiated_powers`, and the
 closed forms :func:`lukosz_half_space_pattern` (lukosz1979 (3.7), (3.8), (3.11)–(3.15)).
+
+Excitation field (T3): :func:`plane_wave_field` and :func:`plane_wave_rt` for a plane wave
+incident from the substrate.
 """
 
 from __future__ import annotations
@@ -45,6 +48,7 @@ from collections.abc import Callable, Sequence
 from itertools import pairwise
 
 import numpy as np
+from numpy.typing import ArrayLike, NDArray
 from scipy.integrate import IntegrationWarning, quad
 
 Layer = tuple[complex, float]  # (refractive index, thickness in the units of the wavelength)
@@ -450,3 +454,134 @@ def lukosz_half_space_pattern(
     f_s = 3.0 / (2.0 * math.pi) * n**3 / (n * n - 1.0) * c2**2 * math.exp(-2.0 * z / dz)
     f_p = f_s / ((n * n + 1.0) * s2 * s2 - 1.0)
     return f_p * n * n * s2 * s2, f_s, f_p * (n * n * s2 * s2 - 1.0)
+
+
+# --- excitation field of a plane wave (T3) ---------------------------------------------------
+
+Z0 = 1.0 / (8.8541878128e-12 * 299792458.0)  # vacuum impedance [Ω], CODATA 2018 ε₀
+
+Profile = Callable[[float], tuple[complex, complex, complex]]
+
+
+def _profile(
+    cover: float, layers: Sequence[Layer], substrate: float, k0: float, kpar: float, pol: str
+) -> tuple[Profile, complex, complex]:
+    """Field profile ψ(z) of one polarisation, wave incident from the substrate.
+
+    ψ is E_s ("s") or Z₀H_s ("p"); ψ and ψ'/q are continuous (q = 1 for s, ε for p). The top
+    interface is z = 0, the layers lie below. Starting from the transmitted wave ψ = e^{ik_z z}
+    in the cover, the pair (ψ, ψ') is carried down through each layer in closed form.
+    Returns ψ(z) as (ψ, ψ', ε) and the amplitudes (a, b) of the incident and the reflected wave
+    in the substrate at its interface z_L: ψ = a e^{ik_z(z−z_L)} + b e^{−ik_z(z−z_L)}.
+    """
+    eps = [complex(cover) ** 2] + [complex(n) ** 2 for n, _ in layers] + [complex(substrate) ** 2]
+    kz = []
+    for e in eps:
+        w = cmath.sqrt(e * k0 * k0 - kpar * kpar)
+        kz.append(w if w.imag >= 0.0 else -w)
+    q = [1.0 + 0j] * len(eps) if pol == "s" else eps
+    tops = [0.0]  # upper boundary of medium j ≥ 1
+    pairs = [(1.0 + 0j, 1j * kz[0])]  # (ψ, ψ') just below that boundary, medium j
+    for j in range(1, len(eps)):
+        psi, dpsi = pairs[-1]
+        if j > 1:  # carry through layer j − 1
+            k, d = kz[j - 1], layers[j - 2][1]
+            psi, dpsi = (
+                psi * cmath.cos(k * d) - dpsi / k * cmath.sin(k * d),
+                dpsi * cmath.cos(k * d) + psi * k * cmath.sin(k * d),
+            )
+            tops.append(tops[-1] - d)
+        pairs.append((psi, dpsi * q[j] / q[j - 1]))
+    del pairs[0]
+    zl = tops[-1]
+    psi_l, dpsi_l = pairs[-1]
+    a = 0.5 * (psi_l + dpsi_l / (1j * kz[-1]))
+    b = 0.5 * (psi_l - dpsi_l / (1j * kz[-1]))
+
+    def at(z: float) -> tuple[complex, complex, complex]:
+        if z >= 0.0:
+            v = cmath.exp(1j * kz[0] * z)
+            return v, 1j * kz[0] * v, eps[0]
+        if z <= zl:
+            k = kz[-1]
+            up, down = a * cmath.exp(1j * k * (z - zl)), b * cmath.exp(-1j * k * (z - zl))
+            return up + down, 1j * k * (up - down), eps[-1]
+        j = max(i for i, top in enumerate(tops) if top > z)  # z inside layer j + 1
+        psi, dpsi = pairs[j]
+        k, d = kz[j + 1], tops[j] - z
+        return (
+            psi * cmath.cos(k * d) - dpsi / k * cmath.sin(k * d),
+            dpsi * cmath.cos(k * d) + psi * k * cmath.sin(k * d),
+            eps[j + 1],
+        )
+
+    return at, a, b
+
+
+def plane_wave_rt(
+    cover: float,
+    layers: Sequence[Layer],
+    substrate: float,
+    wavelength: float,
+    theta: float,
+    pol: str,
+) -> tuple[complex, complex]:
+    """(r, t) of the stack for a wave from the substrate at the angle θ (in the substrate).
+
+    r = b/a at the substrate interface, t = ψ(0⁺)/a; for "p" both refer to the magnetic field
+    (raether1988 (2.16), (2.25) with medium 0 = substrate, 2 = cover).
+    """
+    k0 = 2.0 * math.pi / wavelength
+    _, a, b = _profile(cover, layers, substrate, k0, substrate * k0 * math.sin(theta), pol)
+    return b / a, 1.0 / a
+
+
+def plane_wave_field(
+    cover: float,
+    layers: Sequence[Layer],
+    substrate: float,
+    wavelength: float,
+    k_hat: ArrayLike,
+    polarisation: ArrayLike,
+    irradiance: float,
+    points: ArrayLike,
+) -> NDArray[np.complex128]:
+    """Electric field (N, 3) [V/m] of a plane wave from the substrate at the points (N, 3).
+
+    The incident wave is E₀ ê e^{ik·r} (factor e^{−iωt}, zero phase at the origin, continued
+    through the stack as if homogeneous), k = n_s k₀ k̂ with k̂_z > 0, irradiance
+    I₀ = n_s |E₀|²/(2Z₀) [W/m²] perpendicular to the beam. Top interface at z = 0, layers
+    (index, thickness) from the top below it; lengths in the units of the wavelength. ê is
+    split into s (ŝ = ẑ × k̂, ŷ at normal incidence) and p (p̂ = ŝ × k̂); for p, E follows
+    from Z₀H_s = ψ as E_u = −iψ'/(k₀ε), E_z = −k_u ψ/(k₀ε), û = ŝ × ẑ.
+    """
+    kh = np.asarray(k_hat, dtype=np.float64)
+    if kh[2] <= 0.0:
+        raise ValueError("the wave must come from the substrate (k_hat[2] > 0)")
+    e_hat = np.asarray(polarisation, dtype=np.complex128)
+    k0 = 2.0 * math.pi / wavelength
+    zk = np.cross([0.0, 0.0, 1.0], kh)
+    s_hat = zk / np.linalg.norm(zk) if np.linalg.norm(zk) > 1e-15 else np.array([0.0, 1.0, 0.0])
+    p_hat = np.cross(s_hat, kh)
+    u_hat = np.cross(s_hat, [0.0, 0.0, 1.0])
+    kpar = substrate * k0 * float(kh @ u_hat)
+    e0 = math.sqrt(2.0 * Z0 * irradiance / substrate)
+    kz_s = substrate * k0 * float(kh[2])
+    pts = np.atleast_2d(np.asarray(points, dtype=np.float64))
+    out = np.zeros((pts.shape[0], 3), dtype=np.complex128)
+    for pol, amp in (("s", e0 * (s_hat @ e_hat)), ("p", substrate * e0 * (p_hat @ e_hat))):
+        if amp == 0.0:
+            continue
+        at, a, _ = _profile(cover, layers, substrate, k0, kpar, pol)
+        zl = -sum(d for _, d in layers)
+        scale = amp / (a * cmath.exp(-1j * kz_s * zl))  # incident amplitude at the origin
+        for i in range(pts.shape[0]):
+            psi, dpsi, eps = at(float(pts[i, 2]))
+            ph = scale * cmath.exp(1j * kpar * float(u_hat[:2] @ pts[i, :2]))
+            if pol == "s":
+                out[i] += ph * psi * s_hat
+            else:
+                out[i] += (
+                    ph * (-1j * dpsi * u_hat - kpar * psi * np.array([0.0, 0.0, 1.0])) / (k0 * eps)
+                )
+    return out
