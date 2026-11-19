@@ -15,6 +15,13 @@ n1), dipole at height z above the top interface, layers (index, thickness) and a
 Returns (F_⊥, F_∥), the normalised total powers (decay rates for q = 1) of the perpendicular
 and the parallel dipole.
 
+Guided modes of lossless layers are poles on the real axis of u (on the real s axis of the
+evanescent branch v = i s). Both forms therefore integrate below the real axis up to
+U = max(n)/n₁ + 1, past every guided mode, and along it beyond: the causal limit of a
+vanishing absorption, which moves the poles above the axis. On the real axis alone the power
+into the guided modes is lost (found by hp-FEM, issue #23); the option ``contour="real"`` is
+kept for absorbing stacks and for the check of that limit.
+
 Closed forms for the checks:
 
 * :func:`mirror_rates`: perfect conductor from the field of the image dipole (perpendicular
@@ -29,13 +36,16 @@ from __future__ import annotations
 
 import cmath
 import math
+import warnings
 from collections.abc import Callable, Sequence
 from itertools import pairwise
 
 import numpy as np
-from scipy.integrate import quad
+from scipy.integrate import IntegrationWarning, quad
 
 Layer = tuple[complex, float]  # (refractive index, thickness in the units of the wavelength)
+
+PATH_DEPTH = 0.05  # depth δ of the integration path below the real u axis
 
 
 def _segments(lo: float, hi: float, width: float) -> list[tuple[float, float]]:
@@ -45,13 +55,34 @@ def _segments(lo: float, hi: float, width: float) -> list[tuple[float, float]]:
 
 
 def _integrate(f: Callable[[float], float], segments: Sequence[tuple[float, float]]) -> float:
-    return float(sum(quad(f, a, b, limit=200, epsabs=1e-13, epsrel=1e-11)[0] for a, b in segments))
+    """Sum of adaptive quadratures; a quadrature warning (e.g. a pole on the path) is an error."""
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", IntegrationWarning)
+        return float(
+            sum(quad(f, a, b, limit=200, epsabs=1e-13, epsrel=1e-11)[0] for a, b in segments)
+        )
 
 
 def _evanescent_extent(n1: float, layers: Sequence[Layer], substrate: complex, k1z: float) -> float:
     """Upper end of u (or s): past all modes and the decay of exp(−2 k₁z √(u²−1))."""
     n_max = max([abs(substrate)] + [abs(n) for n, _ in layers]) / n1
     return max(4.0 * n_max + 4.0, 40.0 / k1z)
+
+
+def _path_end(n1: float, layers: Sequence[Layer], substrate: complex) -> float:
+    """End U of the lowered path in u: beyond the largest index, so past all guided modes."""
+    return max([abs(substrate)] + [abs(n) for n, _ in layers] + [n1]) / n1 + 1.0
+
+
+def _lowered(s: float, end: float) -> tuple[complex, complex]:
+    """Point and derivative of the path s − iδ sin(πs/S) below the real axis, s ∈ [0, S]."""
+    w = math.pi / end
+    return s - 1j * PATH_DEPTH * math.sin(w * s), 1.0 - 1j * PATH_DEPTH * w * math.cos(w * s)
+
+
+def _l1(u: complex) -> complex:
+    """l₁ = −i(1 − u²)^½, continuous on and below the real axis (l₁ = √(u²−1) for real u > 1)."""
+    return -1j * cmath.sqrt(1.0 - u * u)
 
 
 # --- Chance, Prock, Silbey -------------------------------------------------------------------
@@ -63,7 +94,7 @@ def _cps_reflection(
     """(R^∥, R^⊥) seen from medium 1 in the CPS convention, layers from the top."""
     eps = [n1**2] + [complex(n) ** 2 for n, _ in layers] + [complex(substrate) ** 2]
     ell = [-1j * cmath.sqrt(e / eps[0] - u * u) for e in eps]
-    ell[0] = -1j * cmath.sqrt(1.0 - u * u) if abs(u) <= 1.0 else cmath.sqrt(u * u - 1.0)
+    ell[0] = _l1(u)
     for j in range(1, len(ell)):
         if ell[j].real < 0.0:
             ell[j] = -ell[j]
@@ -87,27 +118,30 @@ def cps_rates(
     wavelength: float,
     z: float,
     reflection: Callable[[complex], tuple[complex, complex]] | None = None,
+    contour: str = "below",
 ) -> tuple[float, float]:
-    """(F_⊥, F_∥) after chance1978 (2.17), (2.29) with q = 1."""
+    """(F_⊥, F_∥) after chance1978 (2.17), (2.29) with q = 1.
+
+    ``contour``: "below" (default) runs from u = 0 to U below the real axis and on along it,
+    which includes the guided modes of lossless layers (poles on the real axis); "real" stays on
+    the real axis and is valid only when every pole lies off it (absorbing media).
+    """
+    if contour not in ("below", "real"):
+        raise ValueError("contour must be 'below' or 'real'")
     k1 = 2.0 * math.pi * n1 / wavelength
     dh = k1 * z
 
-    def refl(u: float) -> tuple[complex, complex]:
+    def refl(u: complex) -> tuple[complex, complex]:
         if reflection is not None:
             return reflection(u)
         return _cps_reflection(u, n1, layers, substrate, k1)
 
-    # u = sin θ on [0, 1]: u³/l₁ du = i u³ dθ, u/l₁ du = i u dθ, e^{−2l₁d̂} = e^{2i d̂ cos θ}
-    def perp_prop(th: float) -> float:
-        u = math.sin(th)
-        r_par, _ = refl(u)
-        return (r_par * cmath.exp(2j * dh * math.cos(th)) * 1j * u**3).imag
-
-    def par_prop(th: float) -> float:
-        u = math.sin(th)
+    def kernels(u: complex) -> tuple[complex, complex]:
+        """Integrands of (2.17) and (2.29) per du."""
+        l1 = _l1(u)
         r_par, r_perp = refl(u)
-        val = ((1.0 - u * u) * r_par + r_perp) * cmath.exp(2j * dh * math.cos(th)) * 1j * u
-        return val.imag
+        e = cmath.exp(-2.0 * l1 * dh)
+        return r_par * e * u**3 / l1, ((1.0 - u * u) * r_par + r_perp) * e * u / l1
 
     # u = cosh t on [1, ∞): l₁ = sinh t, u³/l₁ du = u³ dt, u/l₁ du = u dt
     def perp_ev(t: float) -> float:
@@ -121,10 +155,37 @@ def cps_rates(
         return (((1.0 - u * u) * r_par + r_perp) * u).imag * math.exp(-2.0 * dh * math.sinh(t))
 
     t_max = math.acosh(_evanescent_extent(n1, layers, substrate, dh))
-    prop = _segments(0.0, 0.5 * math.pi, 0.05)
-    ev = _segments(0.0, t_max, 0.01)
-    perp = 1.0 - 1.5 * (_integrate(perp_prop, prop) + _integrate(perp_ev, ev))
-    par = 1.0 + 0.75 * (_integrate(par_prop, prop) + _integrate(par_ev, ev))
+    if contour == "real":
+        # u = sin θ on [0, 1]: u³/l₁ du = i u³ dθ, u/l₁ du = i u dθ, e^{−2l₁d̂} = e^{2i d̂ cos θ}
+        def perp_head(x: float) -> float:  # x = θ
+            u = math.sin(x)
+            r_par, _ = refl(u)
+            return (r_par * cmath.exp(2j * dh * math.cos(x)) * 1j * u**3).imag
+
+        def par_head(x: float) -> float:
+            u = math.sin(x)
+            r_par, r_perp = refl(u)
+            val = ((1.0 - u * u) * r_par + r_perp) * cmath.exp(2j * dh * math.cos(x)) * 1j * u
+            return val.imag
+
+        head = _segments(0.0, 0.5 * math.pi, 0.05)
+        t_head = 0.0
+    else:
+        end = _path_end(n1, layers, substrate)
+
+        def perp_head(x: float) -> float:  # x = s on the lowered path
+            u, du = _lowered(x, end)
+            return (kernels(u)[0] * du).imag
+
+        def par_head(x: float) -> float:
+            u, du = _lowered(x, end)
+            return (kernels(u)[1] * du).imag
+
+        head = _segments(0.0, end, 0.02)
+        t_head = math.acosh(end)
+    tail = _segments(t_head, max(t_max, t_head), 0.01)
+    perp = 1.0 - 1.5 * (_integrate(perp_head, head) + _integrate(perp_ev, tail))
+    par = 1.0 + 0.75 * (_integrate(par_head, head) + _integrate(par_ev, tail))
     return perp, par
 
 
@@ -147,9 +208,20 @@ def _fresnel_stack(
 
 
 def lukosz_rates(
-    n1: float, layers: Sequence[Layer], substrate: complex, wavelength: float, z: float
+    n1: float,
+    layers: Sequence[Layer],
+    substrate: complex,
+    wavelength: float,
+    z: float,
+    contour: str = "below",
 ) -> tuple[float, float]:
-    """(F_⊥, F_∥) after lukosz1977 (3.15)–(3.17)."""
+    """(F_⊥, F_∥) after lukosz1977 (3.15)–(3.17); ``contour`` as in :func:`cps_rates`.
+
+    On the imaginary branch v = i s the guided modes are poles on the real s axis; "below" runs
+    s on σ − iδ sin(πσ/S) (u below the real axis as in :func:`cps_rates`), then along the axis.
+    """
+    if contour not in ("below", "real"):
+        raise ValueError("contour must be 'below' or 'real'")
     k0 = 2.0 * math.pi / wavelength
     k1 = n1 * k0
     eps = [complex(n1**2)] + [complex(n) ** 2 for n, _ in layers] + [complex(substrate) ** 2]
@@ -171,17 +243,25 @@ def lukosz_rates(
         r_s, r_p = coeffs(v)
         return r_s - r_p
 
+    s_max = math.sqrt(_evanescent_extent(n1, layers, substrate, k1 * z) ** 2 - 1.0)
+    s_end = math.sqrt(_path_end(n1, layers, substrate) ** 2 - 1.0) if contour == "below" else 0.0
+
     def on_path(kernel: Callable[[complex], complex]) -> float:
         # ∫₀¹ f(v) e^{2ik₁zv} dv + ∫_{i∞}^0 f(v) e^{2ik₁zv} dv, the second with v = i s
         a = _integrate(
             lambda v: (kernel(v) * cmath.exp(2j * k1 * z * v)).real, _segments(0, 1, 0.05)
         )
-        s_max = math.sqrt(_evanescent_extent(n1, layers, substrate, k1 * z) ** 2 - 1.0)
-        b = _integrate(
+
+        def lowered(sig: float) -> float:
+            s, ds = _lowered(sig, s_end)
+            return (-1j * kernel(1j * s) * cmath.exp(-2.0 * k1 * z * s) * ds).real
+
+        b = _integrate(lowered, _segments(0.0, s_end, 0.02)) if s_end > 0.0 else 0.0
+        c = _integrate(
             lambda s: (-1j * kernel(1j * s)).real * math.exp(-2.0 * k1 * z * s),
-            _segments(0.0, s_max, 0.01),
+            _segments(s_end, max(s_max, s_end), 0.01),
         )
-        return a + b
+        return a + b + c
 
     perp = 1.0 + 1.5 * on_path(perp_kernel)
     par = 0.5 * (1.0 + perp) + 0.75 * on_path(par_kernel)

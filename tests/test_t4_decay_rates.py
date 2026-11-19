@@ -6,6 +6,7 @@ response table exported by a light solver (hp-FEM), if one is given in BINDOPTIX
 """
 
 import cmath
+import hashlib
 import json
 import math
 import os
@@ -20,6 +21,7 @@ from planar_reference import (
     mirror_rates,
     quasistatic_rates,
 )
+from scipy.integrate import IntegrationWarning
 
 from bindoptix.ports import EmitterResponseTable
 
@@ -73,9 +75,12 @@ def test_t4_lossless_half_space_approaches_lukosz_asymptotics(z_over_lambda1: fl
 
 # --- two separately written forms ----------------------------------------------------------
 
-STACKS = {
+N_GUIDE = 2.3  # lossless high-index layer that guides modes (TiO₂-like test value)
+
+STACKS: dict[str, tuple[list[tuple[complex, float]], float]] = {
     "glass": ([], N_GLASS),
     "gold film on glass": ([(cmath.sqrt(EPS_TEST), 0.05)], N_GLASS),
+    "waveguide on glass": ([(N_GUIDE, 0.12)], N_GLASS),
 }
 
 
@@ -86,6 +91,35 @@ def test_t4_chance_prock_silbey_equals_lukosz_kunz(stack: str, z: float) -> None
     cps = cps_rates(N_WATER, layers, sub, LAM, z)
     luk = lukosz_rates(N_WATER, layers, sub, LAM, z)
     np.testing.assert_allclose(cps, luk, rtol=1e-9)
+
+
+def test_t4_lowered_path_equals_real_axis_without_real_poles() -> None:
+    # Gold film: every pole lies above the real axis, so both paths give the same integral.
+    layers, sub = STACKS["gold film on glass"]
+    below = cps_rates(N_WATER, layers, sub, LAM, 0.02)
+    real = cps_rates(N_WATER, layers, sub, LAM, 0.02, contour="real")
+    np.testing.assert_allclose(below, real, rtol=1e-9)
+
+
+def test_t4_guided_modes_are_the_limit_of_vanishing_absorption() -> None:
+    # Issue #23: a lossless guiding layer has poles on the real axis. The lowered path must give
+    # the causal limit η → 0 of an absorbing layer n + iη, integrated on the real axis (valid
+    # there). Richardson extrapolation from η = 2e-3, 1e-3; its error is bounded by the change
+    # against the extrapolation from η = 4e-3, 2e-3.
+    z = 0.005
+    rates = {
+        eta: np.array(
+            cps_rates(N_WATER, [(N_GUIDE + 1j * eta, 0.12)], N_GLASS, LAM, z, contour="real")
+        )
+        for eta in (4e-3, 2e-3, 1e-3)
+    }
+    fine = 2.0 * rates[1e-3] - rates[2e-3]
+    coarse = 2.0 * rates[2e-3] - rates[4e-3]
+    below = np.array(cps_rates(N_WATER, [(N_GUIDE, 0.12)], N_GLASS, LAM, z))
+    assert np.all(np.abs(fine - below) <= np.abs(coarse - fine))
+    # the guided modes carry power: the real axis alone misses it and quad must say so
+    with pytest.raises(IntegrationWarning):
+        cps_rates(N_WATER, [(N_GUIDE, 0.12)], N_GLASS, LAM, z, contour="real")
 
 
 def test_t4_film_limits() -> None:
@@ -111,7 +145,10 @@ def test_t4_exported_table_matches_reference() -> None:
     """
     table = EmitterResponseTable.from_json(Path(str(TABLE)).read_text(encoding="utf-8"))
     assert "stack" in table.source, "the table must name its stack in source['stack']"
-    st = json.loads(table.source["stack"])
+    stack = table.source["stack"]
+    if "content_hash" in table.source:
+        assert hashlib.sha256(stack.encode("utf-8")).hexdigest() == table.source["content_hash"]
+    st = json.loads(stack)
     n1 = float(st["cover"][0])
     assert n1 == pytest.approx(table.n_host, rel=1e-12)
     lam = float(st["wavelength_m"]) * 1e6
