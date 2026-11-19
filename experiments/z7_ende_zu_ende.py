@@ -42,8 +42,10 @@ def main() -> None:
     cells_xy = to_sensor_frame(ch, final.position_um[got, :2])
     t_cap = final.event_time_s[got]
 
-    rate_on, sites, off, n_on = 12.6, 1e4, 0.01, 200  # Z6 placeholders (P)
-    cam = Camera(2.44, 0.8, 1.5, 0.2, 1.0, 1.2)
+    # Z6, arrangement of D4 (30 nm gold, SIL to NA 1.45), dyes 10 nm above the gold; the height,
+    # sites, off fraction and n_on stay placeholders (P)
+    rate_on, sites, off, n_on = 7.1, 1e4, 0.01, 200
+    cam = Camera(2.44, 0.8, 1.5, 0.2, 2.0, 1.2)  # 2 s: at 1 s two of 15 cells are missed
     allxy = np.vstack(spots)
     lo, hi = allxy.min(axis=0) - 60.0, allxy.max(axis=0) + 60.0
     geom = FrameGeometry(
@@ -61,7 +63,9 @@ def main() -> None:
     tracker = Tracker(4.0, 2)
     for f, t in enumerate(times, start=1):
         on = t_cap <= t
-        img = base + render(geom, 1.2, cells_xy[on], np.full(int(on.sum()), n_on * rate_on))
+        img = base + render(
+            geom, 1.2, cells_xy[on], np.full(int(on.sum()), n_on * rate_on * cam.exposure_s)
+        )
         tracker.update(f, detect(cam.sample(img, g), ref, bg, geom, cam, 0.05))
     counts = counts_per_spot(tracker.confirmed, spots, len(times) + 1, margin_um=5.0)
     print("ROI", geom.nx, "x", geom.ny, "px; captured cells:", int(got.sum()))
